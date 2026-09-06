@@ -106,10 +106,10 @@ Two things it will not claim:
 
 ## Downloads
 
-- **`pulse_collector-v0.1.0.zip`** — the FiveM resource on its own. Needs a
-  backend to report to; the `settings.json` inside is blank, so set
-  `pulse_endpoint` and `pulse_token` as convars, or use the pre-configured
-  download your backend generates.
+- **`pulse_collector-v0.1.0.zip`** — the FiveM resource on its own. It has no
+  `settings.json`, so it needs `pulse_endpoint` and `pulse_token` set as
+  convars. Easier: stand the backend up first and use the pre-configured
+  download it generates, which already has both.
 - **Source code** — everything: collector, backend, simulator and tests.
 
 ## Licence
