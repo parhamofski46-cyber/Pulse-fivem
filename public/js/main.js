@@ -25,6 +25,24 @@
     return document.getElementById(id);
   };
 
+  /* ────────────────── قفل اسکرول صفحه ──────────────────
+     دو جزء مستقل صفحه را قفل می‌کنند: منوی موبایل و لایت‌باکس. قبلاً هر
+     کدام مستقیم `body.style.overflow` را می‌نوشت، یعنی هرکدام که زودتر
+     بسته می‌شد قفلِ دیگری را هم برمی‌داشت. با یک شمارنده، قفل فقط وقتی
+     برداشته می‌شود که هیچ‌کس دیگر آن را لازم نداشته باشد. */
+  var scrollLocks = 0;
+  var navLocked = false;
+
+  function lockScroll() {
+    scrollLocks += 1;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function unlockScroll() {
+    scrollLocks = Math.max(0, scrollLocks - 1);
+    if (scrollLocks === 0) document.body.style.overflow = '';
+  }
+
   // ===================================================== منوی موبایل
   function setMenu(open) {
     var nav = $('main-nav');
@@ -39,7 +57,11 @@
       backdrop.classList.toggle('show', open);
     }
     // وقتی منو باز است، صفحه‌ی پشت آن اسکرول نشود
-    document.body.style.overflow = open ? 'hidden' : '';
+    if (open !== navLocked) {
+      navLocked = open;
+      if (open) lockScroll();
+      else unlockScroll();
+    }
   }
 
   (function initNav() {
@@ -375,7 +397,7 @@
     function close() {
       box.classList.remove('show');
       box.hidden = true;
-      document.body.style.overflow = '';
+      unlockScroll();
       if (lastTrigger) {
         lastTrigger.focus();
         lastTrigger = null;
@@ -394,8 +416,39 @@
       requestAnimationFrame(function () {
         box.classList.add('show');
       });
-      document.body.style.overflow = 'hidden';
+      /* فوکوس باید *داخل* دیالوگ برود، وگرنه کاربر کیبورد و صفحه‌خوان روی
+         صفحه‌ی زیرِ پوشش می‌مانند: چیزی فوکوس می‌کنند که نمی‌بینند.
+
+         ⚠️ چرا این‌قدر پیچیده و چرا requestAnimationFrame کافی نیست:
+         لایت‌باکس `visibility: hidden` دارد و کلاس `show` آن را با یک
+         گذارِ ۰.۲ ثانیه‌ای `visible` می‌کند. تا وقتی آن گذار تمام نشده،
+         مرورگر دکمه را فوکوس‌پذیر حساب نمی‌کند و `focus()` بی‌سروصدا
+         بی‌اثر می‌ماند — نه خطایی می‌دهد، نه رویدادی. با یک و حتی دو
+         فریم تست شد و فوکوس روی دکمه‌ی باز‌کننده می‌ماند.
+         پس منتظر پایان خودِ گذار می‌مانیم. تایمر پشتیبان لازم است چون
+         وقتی کاربر «حرکت کمتر» را روشن کرده باشد گذاری در کار نیست و
+         `transitionend` هرگز شلیک نمی‌شود. */
+      var focused = false;
+      function focusIn() {
+        if (focused || box.hidden) return;
+        focused = true;
+        box.removeEventListener('transitionend', focusIn);
+        closeBtn.focus();
+      }
+      box.addEventListener('transitionend', focusIn);
+      setTimeout(focusIn, 260);
+      lockScroll();
     }
+
+    /* تله‌ی فوکوس: تا وقتی لایت‌باکس باز است، Tab نباید از آن بیرون برود.
+       فقط دو عنصر قابل فوکوس داریم (دکمه‌ی بستن و خودِ جعبه)، پس ساده‌ترین
+       و مطمئن‌ترین کار این است که هر Tab را به دکمه‌ی بستن برگردانیم. */
+    bindOnce(document, 'keydown', 'lightboxtrap', function (e) {
+      var b = $('lightbox');
+      if (!b || b.hidden || e.key !== 'Tab') return;
+      e.preventDefault();
+      closeBtn.focus();
+    });
 
     bindOnce(document, 'click', 'zoomopen', function (e) {
       var trigger = e.target.closest && e.target.closest('[data-zoom]');
