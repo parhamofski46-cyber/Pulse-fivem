@@ -13,6 +13,7 @@ BASE = os.environ.get("INVOICE_BASE", os.path.dirname(HERE))
 VZ = os.path.join(BASE, "package/fonts/webfonts")
 CG = os.path.join(BASE, "cg/package/files")
 BLANK = "--blank" in sys.argv
+FORM  = "--form" in sys.argv
 
 def b64(p):
     with open(p, "rb") as f:
@@ -52,7 +53,10 @@ items = [
          ayar="۱۸ (۷۵۰)", qty=1, w=3.200, ojrat=0.35, stone=58_000_000),
 ]
 
-if BLANK:
+if FORM:
+    import formvars
+    V = formvars.build(fa)
+elif BLANK:
     V = {k: "" for k in ("INVNO IDATE ITIME TAXID B_NAME B_NID B_TEL B_ADDR B_ZIP B_ECON "
                          "RATE MESGHAL OUNCE RVALID U1 U2 U3 TQTY TW TGOLD TOJRAT TSOOD "
                          "TSTONE TVAT SUBTOTAL WORDS POS TRANSFER REMAIN DISCOUNT ROUND "
@@ -60,18 +64,20 @@ if BLANK:
     V["BODYCLASS"] = "blank"
     V["ROWS"] = "".join(
         '<tr class="blank"><td class="c num">%s</td><td class="desc"></td><td></td><td></td>'
-        '<td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>' % fa(i)
+        '<td></td><td></td><td></td><td></td><td></td><td></td></tr>' % fa(i)
         for i in range(1, BLANK_ROWS + 1))
     V["ROWH"] = "8mm"
 else:
     rows = []
     T = dict(w=0, gold=0, ojrat=0, sood=0, stone=0, vat=0, total=0, qty=0)
     for i, it in enumerate(items, 1):
-        gold  = it["w"] * RATE
-        ojrat = gold * it["ojrat"]
-        sood  = (gold + ojrat) * SOOD
-        vat   = (ojrat + sood) * VAT
-        total = gold + ojrat + sood + it["stone"] + vat
+        # round every component so the printed figures add up exactly
+        gold   = round(it["w"] * RATE)
+        ojrat  = round(gold * it["ojrat"])
+        sood   = round((gold + ojrat) * SOOD)
+        making = ojrat + sood          # اجرت و کارمزد ساخت (سود داخل آن ادغام شده)
+        vat    = round(making * VAT)
+        total  = gold + making + it["stone"] + vat
         T["w"] += it["w"]; T["gold"] += gold; T["ojrat"] += ojrat; T["sood"] += sood
         T["stone"] += it["stone"]; T["vat"] += vat; T["total"] += total; T["qty"] += it["qty"]
         rows.append("""
@@ -85,15 +91,13 @@ else:
       <td class="c num">%s</td>
       <td class="c num strong">%s</td>
       <td class="m">%s</td>
-      <td class="m">%s<span class="chip">%s٪</span></td>
-      <td class="m">%s<span class="chip">%s٪</span></td>
+      <td class="m">%s</td>
       <td class="m">%s</td>
       <td class="m">%s</td>
       <td class="m total">%s</td>
     </tr>""" % (
             fa(i), it["name"], it["spec"], it["code"], it["ayar"], fa(it["qty"]),
-            dec(it["w"]), money(gold), money(ojrat), fa(int(it["ojrat"]*100)),
-            money(sood), fa(int(SOOD*100)),
+            dec(it["w"]), money(gold), money(making),
             (money(it["stone"]) if it["stone"] else "—"), money(vat), money(total)))
 
     grand    = T["total"] - DISCOUNT
@@ -114,7 +118,7 @@ else:
       "OUNCE": fa("۳,۴۸۵"), "U3": "دلار",
       "RVALID": "۱۴۰۵/۰۶/۱۶ <i>ساعت ۱۷:۰۰</i>",
       "TQTY": fa(T["qty"]), "TW": dec(T["w"]),
-      "TGOLD": money(T["gold"]), "TOJRAT": money(T["ojrat"]), "TSOOD": money(T["sood"]),
+      "TGOLD": money(T["gold"]), "TOJRAT": money(T["ojrat"] + T["sood"]), "TSOOD": "",
       "TSTONE": money(T["stone"]), "TVAT": money(T["vat"]), "SUBTOTAL": money(T["total"]),
       "DISCOUNT": "−" + money(DISCOUNT),
       "ROUND": ("−" if rounding < 0 else "+") + money(abs(rounding)),
@@ -122,11 +126,19 @@ else:
       "POS": money(paid_pos), "TRANSFER": money(payable - paid_pos), "REMAIN": money(0),
     }
 
+V.setdefault("TOOLBAR", "")
+V.setdefault("EXTRACSS", "")
+V.setdefault("EXTRAJS", "")
+for _k in "S_NAME S_LIC S_NID S_ADDR S_TEL S_ZIP".split():
+    V.setdefault(_k, "")
+V.setdefault("NOTES", '<div class="nl"></div><div class="nl"></div><div class="nl"></div>')
+V.setdefault("SHOPNAME", "")
+V.setdefault("SHOPADDR", "")
 V["FONTS"] = FONTS
 html = open(os.path.join(HERE, "template.html"), encoding="utf-8").read()
 for k, v in V.items():
     html = html.replace("{{%s}}" % k, str(v))
 
-out = os.path.join(BASE, "invoice-blank.html" if BLANK else "invoice.html")
+out = os.path.join(BASE, "invoice-form.html" if FORM else "invoice-blank.html" if BLANK else "invoice.html")
 open(out, "w", encoding="utf-8").write(html)
 print("written", out)

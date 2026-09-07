@@ -190,9 +190,11 @@ footer{position:absolute;left:11mm;right:11mm;bottom:8.4mm;display:flex;justify-
 footer .fa-note{max-width:130mm;line-height:1.5}
 footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;color:var(--gold);
   font-size:6.4pt;text-transform:uppercase}
+{{EXTRACSS}}
 </style>
 </head>
 <body class="{{BODYCLASS}}">
+{{TOOLBAR}}
 <div class="page">
   <div class="frame"></div>
   <div class="corner c-tr"></div><div class="corner c-tl"></div>
@@ -205,8 +207,8 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
         <div class="medallion"><span class="dia f"></span></div>
         <div class="brand-lines">
           <div class="brand-hint">محل درج نام، نشان و مشخصات واحد صنفی</div>
-          <div class="dot-line w2"><b>نام فروشگاه :</b></div>
-          <div class="dot-line w1"><b>نشانی :</b></div>
+          <div class="dot-line w2"><b>نام فروشگاه :</b>{{SHOPNAME}}</div>
+          <div class="dot-line w1"><b>نشانی :</b>{{SHOPADDR}}</div>
         </div>
       </div>
       <div class="titlebox">
@@ -226,15 +228,15 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
     <div class="parties">
       <div class="card">
         <div class="card-h"><span class="dia"></span><span>مشخصات فروشنده</span><em>Seller</em></div>
-        <div class="f"><div class="lbl">نام واحد صنفی</div><div class="val"></div></div>
+        <div class="f"><div class="lbl">نام واحد صنفی</div><div class="val">{{S_NAME}}</div></div>
         <div class="f2">
-          <div class="f"><div class="lbl">شماره پروانه کسب</div><div class="val"></div></div>
-          <div class="f"><div class="lbl">شناسه ملی</div><div class="val"></div></div>
+          <div class="f"><div class="lbl">شماره پروانه کسب</div><div class="val">{{S_LIC}}</div></div>
+          <div class="f"><div class="lbl">شناسه ملی</div><div class="val">{{S_NID}}</div></div>
         </div>
-        <div class="f"><div class="lbl">نشانی</div><div class="val"></div></div>
+        <div class="f"><div class="lbl">نشانی</div><div class="val">{{S_ADDR}}</div></div>
         <div class="f2">
-          <div class="f"><div class="lbl">تلفن</div><div class="val"></div></div>
-          <div class="f"><div class="lbl">کدپستی</div><div class="val"></div></div>
+          <div class="f"><div class="lbl">تلفن</div><div class="val">{{S_TEL}}</div></div>
+          <div class="f"><div class="lbl">کدپستی</div><div class="val">{{S_ZIP}}</div></div>
         </div>
       </div>
       <div class="card">
@@ -263,9 +265,8 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
     <table>
       <colgroup>
         <col style="width:6mm"><col><col style="width:11mm"><col style="width:6.5mm">
-        <col style="width:12mm"><col style="width:18.5mm"><col style="width:18.5mm">
-        <col style="width:18.5mm"><col style="width:18.5mm"><col style="width:16.5mm">
-        <col style="width:19.5mm">
+        <col style="width:12mm"><col style="width:19.5mm"><col style="width:21mm">
+        <col style="width:18.5mm"><col style="width:16.5mm"><col style="width:20.5mm">
       </colgroup>
       <thead>
         <tr>
@@ -275,8 +276,7 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
           <th>تعداد<em>Qty</em></th>
           <th>وزن (گرم)<em>Weight</em></th>
           <th>ارزش طلا<em>Gold value</em></th>
-          <th>اجرت ساخت<em>Making</em></th>
-          <th>سود فروشنده<em>Profit</em></th>
+          <th>اجرت و کارمزد ساخت<em>Making &amp; service</em></th>
           <th>سنگ و نگین<em>Stone</em></th>
           <th>مالیات ارزش افزوده<em>VAT</em></th>
           <th>مبلغ کل (تومان)<em>Line total</em></th>
@@ -287,7 +287,7 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
         <tr>
           <td class="lbl" colspan="3">جمع کل — Total</td>
           <td><span>{{TQTY}}</span></td><td><span>{{TW}}</span></td><td><span>{{TGOLD}}</span></td>
-          <td><span>{{TOJRAT}}</span></td><td><span>{{TSOOD}}</span></td><td><span>{{TSTONE}}</span></td>
+          <td><span>{{TOJRAT}}</span></td><td><span>{{TSTONE}}</span></td>
           <td><span>{{TVAT}}</span></td><td><span>{{SUBTOTAL}}</span></td>
         </tr>
       </tfoot>
@@ -311,7 +311,7 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
           <div class="notes">
             <div class="notes-h"><span class="dia"></span> توضیحات و تعهدات تکمیلی</div>
             <div class="notes-b">
-              <div class="nl"></div><div class="nl"></div><div class="nl"></div>
+{{NOTES}}
             </div>
           </div>
         </div>
@@ -320,9 +320,9 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
       <div class="totals">
         <div class="t-h"><span>خلاصه صورتحساب</span><em>Summary</em></div>
         <div class="tgrid">
+          <div class="tc"><span class="k">وزن کل (گرم)</span><span class="v">{{TW}}</span></div>
           <div class="tc"><span class="k">ارزش طلای خام</span><span class="v">{{TGOLD}}</span></div>
-          <div class="tc"><span class="k">اجرت ساخت</span><span class="v">{{TOJRAT}}</span></div>
-          <div class="tc"><span class="k">سود فروشنده</span><span class="v">{{TSOOD}}</span></div>
+          <div class="tc"><span class="k">اجرت و کارمزد ساخت</span><span class="v">{{TOJRAT}}</span></div>
           <div class="tc"><span class="k">سنگ و نگین</span><span class="v">{{TSTONE}}</span></div>
           <div class="tc vat"><span class="k">مالیات ارزش افزوده</span><span class="v">{{TVAT}}</span></div>
           <div class="tc minus"><span class="k">تخفیف</span><span class="v">{{DISCOUNT}}</span></div>
@@ -339,8 +339,8 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
       <div class="terms-b">
         <p><b>۱. اسقاط خیارات:</b> کلیه خیارات از جمله خیار غبن ولو غبن فاحش، عیب، رؤیت و تخلف از وصف، تدلیس، مجلس، تأخیر ثمن و شرط، با آگاهی کامل طرفین از ایشان ساقط گردید. <s>(ماده ۴۴۸ ق.م)</s></p>
         <p><b>۲. توزین، عیار و تحویل:</b> وزن، عیار، تعداد و سلامت کامل اقلام در حضور خریدار و با ترازوی کالیبره فروشگاه رؤیت و تأیید و کالا سالم تحویل گردید؛ هرگونه ادعا در این خصوص پس از خروج کالا از فروشگاه مسموع نبوده و خریدار حق طرح آن را از خود ساقط نمود.</p>
-        <p><b>۳. عدم پذیرش مرجوعی:</b> کالای سالم قابل استرداد نیست؛ پذیرش مرجوعی صرفاً حق فروشنده و منوط به موافقت کتبی اوست و در آن صورت اجرت ساخت، سود فروشنده، مالیات، بهای سنگ و کارمزدهای بانکی کسر می‌گردد.</p>
-        <p><b>۴. مبنای بازخرید:</b> صرفاً وزن حاصل از توزین مجدد و «نرخ خرید» اعلامی فروشگاه در روز مراجعه؛ اجرت، سود، مالیات، بهای سنگ، بند، قفل و ملحقات محاسبه نشده و افت ناشی از ساییدگی، لحیم و شکستگی کسر می‌شود.</p>
+        <p><b>۳. عدم پذیرش مرجوعی:</b> کالای سالم قابل استرداد نیست؛ پذیرش مرجوعی صرفاً حق فروشنده و منوط به موافقت کتبی اوست و در آن صورت اجرت و کارمزد ساخت، مالیات، بهای سنگ و کارمزدهای بانکی کسر می‌گردد.</p>
+        <p><b>۴. مبنای بازخرید:</b> صرفاً وزن حاصل از توزین مجدد و «نرخ خرید» اعلامی فروشگاه در روز مراجعه؛ اجرت و کارمزد ساخت، مالیات، بهای سنگ، بند، قفل و ملحقات محاسبه نشده و افت ناشی از ساییدگی، لحیم و شکستگی کسر می‌شود.</p>
         <p><b>۵. اقلام غیرقابل استرداد:</b> اقلام سفارشی، حکاکی‌شده، سایزشده، تعمیرشده، نگین‌نشان به سفارش خریدار و اقلام با پلمب یا برچسب مخدوش، در هیچ حالت مرجوع، تعویض یا بازخرید نمی‌شود.</p>
         <p><b>۶. بیعانه و رزرو:</b> در صورت انصراف خریدار یا عدم مراجعه در موعد مقرر، بیعانه به‌عنوان وجه التزام قطعی و غیرقابل استرداد به نفع فروشنده ضبط و حق هرگونه اعتراض و مطالبه از خریدار ساقط است. <s>(ماده ۲۳۰ ق.م)</s></p>
         <p><b>۷. حفظ مالکیت تا تسویه:</b> تا وصول کامل و قطعی ثمن (نقد، کارتخوان، انتقال بانکی یا چک)، مالکیت کالا با فروشنده و کالا نزد خریدار امانت است؛ عدم تسویه در موعد یا برگشت چک، حق فسخ یک‌جانبه، استرداد فوری کالا و مطالبه خسارت را برای فروشنده ایجاد می‌کند.</p>
@@ -348,7 +348,7 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
         <p><b>۹. اعتبار نرخ:</b> نرخ‌های این فاکتور تا پایان ساعت کاری روز صدور و منوط به تسویه کامل معتبر است؛ پس از آن محاسبه بر مبنای نرخ روز تسویه انجام شده و خریدار حق اعتراض ندارد.</p>
         <p><b>۱۰. ضمانت محدود:</b> ضمانت صرفاً شامل عیوب پنهان ساخت به مدت … ماه است؛ ساییدگی، ضربه، تغییر شکل، پارگی بند، افتادن یا شکستن نگین، رنگ‌پریدگی آبکاری، تماس با مواد شیمیایی و استفاده نادرست مشمول نیست و تعمیر یا دخالت اشخاص ثالث، ضمانت را کاملاً ساقط می‌کند.</p>
         <p><b>۱۱. اعتبار مستندات:</b> اصل این فاکتور، دفاتر، سوابق و توزین فروشگاه تنها مستند مورد قبول طرفین است؛ طرح هر ادعا منوط به ارائه اصل فاکتور با برچسب و پلمب دست‌نخورده کالاست، المثنی صادر نمی‌شود و نگهداری فاکتور بر عهده خریدار است.</p>
-        <p><b>۱۲. مالیات و هزینه‌ها:</b> مالیات بر ارزش افزوده (بر مبنای اجرت و سود)، کارمزد بانکی، هزینه انتقال، بسته‌بندی و بیمه ارسال بر عهده خریدار است.</p>
+        <p><b>۱۲. مالیات و هزینه‌ها:</b> مالیات بر ارزش افزوده (بر مبنای اجرت و کارمزد ساخت)، کارمزد بانکی، هزینه انتقال، بسته‌بندی و بیمه ارسال بر عهده خریدار است.</p>
         <p><b>۱۳. حل اختلاف:</b> ابتدا اتحادیه صنف طلا و جواهر محل استقرار فروشگاه و سپس مراجع قضایی همان حوزه؛ صلاحیت محلی مذکور مورد توافق صریح طرفین است.</p>
         <p><b>۱۴. اعلام پذیرش:</b> امضای خریدار ذیل این فاکتور به‌منزله مطالعه، درک کامل و پذیرش بی‌قید و شرط تمامی بندهای فوق و تأیید صحت مندرجات آن است.</p>
       </div>
@@ -375,5 +375,6 @@ footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;col
     <em>Page 1 / 1</em>
   </footer>
 </div>
+{{EXTRAJS}}
 </body>
 </html>
