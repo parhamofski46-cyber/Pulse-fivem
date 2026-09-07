@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
+"""Renders the jewelry invoice HTML.
+
+    python3 build.py            -> invoice.html        (نمونه پرشده)
+    python3 build.py --blank    -> invoice-blank.html  (نسخه کاملاً خالی)
+"""
 import base64, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fanum import fa, money, dec, to_words
 
-BASE = os.environ.get("INVOICE_BASE", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+HERE = os.path.dirname(os.path.abspath(__file__))
+BASE = os.environ.get("INVOICE_BASE", os.path.dirname(HERE))
 VZ = os.path.join(BASE, "package/fonts/webfonts")
 CG = os.path.join(BASE, "cg/package/files")
+BLANK = "--blank" in sys.argv
 
 def b64(p):
     with open(p, "rb") as f:
@@ -23,11 +30,12 @@ for w in [300,400,500,600,700]:
                 % (w, b64(os.path.join(CG, "cormorant-garamond-latin-%d-normal.woff2" % w))))
 FONTS = "\n".join(face)
 
-# ---------------- data ----------------
-RATE = 11_250_000          # tooman per gram, 18k
-SOOD = 0.07                # seller profit
-VAT  = 0.10                # VAT on (ojrat + sood)
+# ------------------------------------------------------------------ data
+RATE     = 11_250_000   # تومان — هر گرم طلای ۱۸ عیار
+SOOD     = 0.07         # سود فروشنده
+VAT      = 0.10         # مالیات بر ارزش افزوده (بر اجرت + سود)
 DISCOUNT = 2_000_000
+BLANK_ROWS = 6
 
 items = [
     dict(code="GR-۱۰۲۴۷", name="انگشتر زنانه طرح گل",
@@ -40,27 +48,38 @@ items = [
          spec="ساخت ترکیه • رنگ زرد و سفید • طول ۴۵ سانتی‌متر • حکاکی لیزری",
          ayar="۱۸ (۷۵۰)", qty=1, w=6.840, ojrat=0.22, stone=0),
     dict(code="DR-۴۷۱۰۲", name="حلقه جواهر تک‌نگین برلیان",
-         spec="برلیان ۰.۲۵ قیراط • رنگ F • کلاریتی VS۱ • تراش Round • شناسنامه GIA",
+         spec="برلیان ۰.۲۵ قیراط • رنگ F • کلاریتی VS۱ • شناسنامه GIA",
          ayar="۱۸ (۷۵۰)", qty=1, w=3.200, ojrat=0.35, stone=58_000_000),
 ]
 
-rows = []
-T = dict(w=0, gold=0, ojrat=0, sood=0, stone=0, vat=0, total=0, qty=0)
-for i, it in enumerate(items, 1):
-    gold  = it["w"] * RATE
-    ojrat = gold * it["ojrat"]
-    sood  = (gold + ojrat) * SOOD
-    vat   = (ojrat + sood) * VAT
-    total = gold + ojrat + sood + it["stone"] + vat
-    T["w"] += it["w"]; T["gold"] += gold; T["ojrat"] += ojrat; T["sood"] += sood
-    T["stone"] += it["stone"]; T["vat"] += vat; T["total"] += total; T["qty"] += it["qty"]
-    rows.append("""
+if BLANK:
+    V = {k: "" for k in ("INVNO IDATE ITIME TAXID B_NAME B_NID B_TEL B_ADDR B_ZIP B_ECON "
+                         "RATE MESGHAL OUNCE RVALID U1 U2 U3 TQTY TW TGOLD TOJRAT TSOOD "
+                         "TSTONE TVAT SUBTOTAL WORDS POS TRANSFER REMAIN DISCOUNT ROUND "
+                         "PAYABLE").split()}
+    V["BODYCLASS"] = "blank"
+    V["ROWS"] = "".join(
+        '<tr class="blank"><td class="c num">%s</td><td class="desc"></td><td></td><td></td>'
+        '<td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>' % fa(i)
+        for i in range(1, BLANK_ROWS + 1))
+    V["ROWH"] = "8mm"
+else:
+    rows = []
+    T = dict(w=0, gold=0, ojrat=0, sood=0, stone=0, vat=0, total=0, qty=0)
+    for i, it in enumerate(items, 1):
+        gold  = it["w"] * RATE
+        ojrat = gold * it["ojrat"]
+        sood  = (gold + ojrat) * SOOD
+        vat   = (ojrat + sood) * VAT
+        total = gold + ojrat + sood + it["stone"] + vat
+        T["w"] += it["w"]; T["gold"] += gold; T["ojrat"] += ojrat; T["sood"] += sood
+        T["stone"] += it["stone"]; T["vat"] += vat; T["total"] += total; T["qty"] += it["qty"]
+        rows.append("""
     <tr>
       <td class="c num">%s</td>
       <td class="desc">
         <div class="d-name">%s</div>
-        <div class="d-spec">%s</div>
-        <div class="d-code">کد کالا: %s</div>
+        <div class="d-spec">%s <span class="d-code">• کد کالا: %s</span></div>
       </td>
       <td class="c">%s</td>
       <td class="c num">%s</td>
@@ -72,45 +91,42 @@ for i, it in enumerate(items, 1):
       <td class="m">%s</td>
       <td class="m total">%s</td>
     </tr>""" % (
-        fa(i), it["name"], it["spec"], it["code"], it["ayar"], fa(it["qty"]),
-        dec(it["w"]), money(gold), money(ojrat), fa(int(it["ojrat"]*100)),
-        money(sood), fa(int(SOOD*100)),
-        (money(it["stone"]) if it["stone"] else "—"), money(vat), money(total)))
+            fa(i), it["name"], it["spec"], it["code"], it["ayar"], fa(it["qty"]),
+            dec(it["w"]), money(gold), money(ojrat), fa(int(it["ojrat"]*100)),
+            money(sood), fa(int(SOOD*100)),
+            (money(it["stone"]) if it["stone"] else "—"), money(vat), money(total)))
 
-grand = T["total"] - DISCOUNT
-payable = int(round(grand / 1000.0)) * 1000
-rounding = payable - grand
-words = to_words(payable) + " تومان"
-paid_pos = 300_000_000
-paid_transfer = payable - paid_pos
+    grand    = T["total"] - DISCOUNT
+    payable  = int(round(grand / 1000.0)) * 1000
+    rounding = payable - grand
+    paid_pos = 300_000_000
 
-V = {
-  "FONTS": FONTS,
-  "ROWS": "".join(rows),
-  "RATE": money(RATE),
-  "MESGHAL": money(48_730_000),
-  "OUNCE": fa("۳,۴۸۵"),
-  "TW": dec(T["w"]),
-  "TQTY": fa(T["qty"]),
-  "TGOLD": money(T["gold"]),
-  "TOJRAT": money(T["ojrat"]),
-  "TSOOD": money(T["sood"]),
-  "TSTONE": money(T["stone"]),
-  "TVAT": money(T["vat"]),
-  "SUBTOTAL": money(T["total"]),
-  "DISCOUNT": money(DISCOUNT),
-  "ROUND": ("−" if rounding < 0 else "+") + money(abs(rounding)),
-  "PAYABLE": money(payable),
-  "WORDS": words,
-  "POS": money(paid_pos),
-  "TRANSFER": money(paid_transfer),
-  "REMAIN": money(0),
-}
+    V = {
+      "ROWS": "".join(rows), "ROWH": "auto", "BODYCLASS": "",
+      "INVNO": "۱۴۰۵/۰۴-۰۸۷۳", "IDATE": "۱۴۰۵/۰۶/۱۶", "ITIME": "۱۷:۴۲",
+      "TAXID": "A۱B۲-۰۸۷۳-۱۴۰۵",
+      "B_NAME": "سرکار خانم سارا محمدی", "B_NID": "۰۰۲۳۴۵۶۷۸۹",
+      "B_TEL": '<bdi dir="ltr">۰۹۱۲ ۳۴۵ ۶۷۸۹</bdi>',
+      "B_ADDR": "تهران، خیابان ولیعصر، کوچه بهار، پلاک ۲۴، واحد ۷",
+      "B_ZIP": "۱۴۳۴۶۷۸۹۱۰", "B_ECON": "—",
+      "RATE": money(RATE), "U1": "تومان",
+      "MESGHAL": money(48_730_000), "U2": "تومان",
+      "OUNCE": fa("۳,۴۸۵"), "U3": "دلار",
+      "RVALID": "۱۴۰۵/۰۶/۱۶ <i>ساعت ۱۷:۰۰</i>",
+      "TQTY": fa(T["qty"]), "TW": dec(T["w"]),
+      "TGOLD": money(T["gold"]), "TOJRAT": money(T["ojrat"]), "TSOOD": money(T["sood"]),
+      "TSTONE": money(T["stone"]), "TVAT": money(T["vat"]), "SUBTOTAL": money(T["total"]),
+      "DISCOUNT": "−" + money(DISCOUNT),
+      "ROUND": ("−" if rounding < 0 else "+") + money(abs(rounding)),
+      "PAYABLE": money(payable), "WORDS": to_words(payable) + " تومان",
+      "POS": money(paid_pos), "TRANSFER": money(payable - paid_pos), "REMAIN": money(0),
+    }
 
-TPL = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "template.html"), encoding="utf-8").read()
+V["FONTS"] = FONTS
+html = open(os.path.join(HERE, "template.html"), encoding="utf-8").read()
 for k, v in V.items():
-    TPL = TPL.replace("{{%s}}" % k, str(v))
-out = os.path.join(BASE, "invoice.html")
-open(out, "w", encoding="utf-8").write(TPL)
-print("written", out, len(TPL))
-print("payable:", money(payable), "|", words)
+    html = html.replace("{{%s}}" % k, str(v))
+
+out = os.path.join(BASE, "invoice-blank.html" if BLANK else "invoice.html")
+open(out, "w", encoding="utf-8").write(html)
+print("written", out)

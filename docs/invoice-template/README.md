@@ -7,7 +7,8 @@
 - `template.html` — قالب و تمام استایل‌ها (متن، رنگ‌ها، چیدمان اینجا ویرایش می‌شود)
 - `build.py` — داده‌های فاکتور (نرخ طلا، اقلام، اجرت، سود، مالیات) و تولید HTML نهایی
 - `fanum.py` — اعداد فارسی، جداکننده هزارگان و تبدیل مبلغ به حروف
-- `Gold-Jewelry-Invoice-A4.pdf` — نمونه خروجی
+- `Gold-Jewelry-Invoice-A4.pdf` — خروجی نمونه (پرشده)
+- `Gold-Jewelry-Invoice-BLANK-A4.pdf` — خروجی فرم خام
 
 ## ساخت مجدد
 ```bash
@@ -18,7 +19,8 @@ curl -sSL -o cg.tgz https://registry.npmjs.org/@fontsource/cormorant-garamond/-/
 mkdir -p cg && tar xzf cg.tgz -C cg --wildcards 'package/files/cormorant-garamond-latin-*-normal.woff2'
 
 # ۲) تولید HTML  (INVOICE_BASE = پوشه‌ای که package/ و cg/ در آن است)
-INVOICE_BASE="$PWD" python3 build.py
+INVOICE_BASE="$PWD" python3 build.py            # نمونه پرشده -> invoice.html
+INVOICE_BASE="$PWD" python3 build.py --blank    # فرم خام     -> invoice-blank.html
 
 # ۳) تبدیل به PDF
 chromium --headless --no-pdf-header-footer \
@@ -35,3 +37,11 @@ chromium --headless --no-pdf-header-footer \
 مبلغ ردیف     = ارزش طلا + اجرت + سود + سنگ و نگین + مالیات
 ```
 درصد سود، نرخ مالیات و نرخ روز طلا در بالای `build.py` قابل تغییر است.
+
+## بندهای شرایط فروش
+بندهای پای فاکتور (بخش `terms-b` در `template.html`) با جهت‌گیری حمایت از فروشنده نوشته شده‌اند:
+اسقاط کافه خیارات، تأیید توزین و عیار در زمان تحویل، عدم پذیرش مرجوعی کالای سالم، مبنای بازخرید
+بر پایه نرخ خرید روز، ضبط بیعانه به‌عنوان وجه التزام، حفظ مالکیت تا تسویه کامل، وجه التزام تأخیر،
+اعتبار محدود نرخ، ضمانت محدود، انحصار مستندات به فاکتور و دفاتر فروشگاه، و تعیین مرجع حل اختلاف.
+
+سه جای خالی باید پیش از چاپ پر شود: درصد وجه التزام تأخیر (بند ۸) و مدت ضمانت (بند ۱۰).
