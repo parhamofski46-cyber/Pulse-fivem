@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>فاکتور فروش طلا و جواهر</title>
+<style>
+{{FONTS}}
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1B1713;
+  --ink2:#4A4038;
+  --ink3:#7C7066;
+  --gold:#A07C36;
+  --gold2:#C6A455;
+  --gold3:#E8DCC0;
+  --line:#DED4C0;
+  --line2:#EDE6D8;
+  --bg:#FFFDF9;
+  --panel:#FAF6EE;
+  --dark:#1E1913;
+}
+@page{size:A4;margin:0}
+html,body{background:#fff}
+body{
+  font-family:'Vazirmatn',sans-serif;
+  color:var(--ink);
+  font-size:8pt;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+}
+.page{
+  width:210mm;height:297mm;position:relative;overflow:hidden;
+  background:var(--bg);
+  padding:8.5mm;
+}
+/* ornamental frame */
+.frame{position:absolute;inset:6.5mm;border:0.5pt solid var(--gold);pointer-events:none}
+.frame::before{content:"";position:absolute;inset:1.6mm;border:0.4pt solid var(--gold3)}
+.corner{position:absolute;width:7mm;height:7mm;pointer-events:none}
+.corner::before,.corner::after{content:"";position:absolute;background:var(--gold)}
+.corner::before{width:7mm;height:0.9pt;top:0;right:0}
+.corner::after{width:0.9pt;height:7mm;top:0;right:0}
+.c-tr{top:6.5mm;right:6.5mm}
+.c-tl{top:6.5mm;left:6.5mm;transform:scaleX(-1)}
+.c-br{bottom:6.5mm;right:6.5mm;transform:scaleY(-1)}
+.c-bl{bottom:6.5mm;left:6.5mm;transform:scale(-1,-1)}
+.watermark{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:118mm;color:#B49A5E;opacity:.020;line-height:1;pointer-events:none;
+}
+.inner{position:relative;padding:3mm 5mm 0}
+
+/* ---------- header ---------- */
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm}
+.brand{display:flex;gap:4mm;align-items:center;flex:1}
+.medallion{
+  width:17mm;height:17mm;border:0.7pt solid var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;position:relative;flex:0 0 auto;
+  background:linear-gradient(145deg,#FFFDF7,#F4EDDD);
+}
+.medallion::after{content:"";position:absolute;inset:1.1mm;border:0.4pt solid var(--gold3);border-radius:50%}
+.medallion span{font-size:11pt;color:var(--gold);line-height:1}
+.brand-lines{padding-top:1mm}
+.brand-hint{font-size:5.6pt;color:#B9AE9C;letter-spacing:.4px;margin-bottom:1.2mm}
+.dot-line{border-bottom:0.5pt dotted #C9BCA5;height:4.1mm;margin-bottom:1.1mm;position:relative}
+.dot-line b{position:absolute;right:0;top:0;font-weight:500;font-size:6.2pt;color:#9A8E7C}
+.dot-line.w1{width:62mm}.dot-line.w2{width:74mm}
+
+.titlebox{text-align:left;flex:0 0 auto}
+.eyebrow{
+  font-family:'Cormorant',serif;font-weight:500;font-size:8pt;letter-spacing:3.4px;
+  color:var(--gold);text-transform:uppercase;
+}
+.title{font-size:15.5pt;font-weight:800;letter-spacing:-.3px;color:var(--ink);margin:.6mm 0 .8mm}
+.title small{font-weight:400;font-size:9pt;color:var(--ink3)}
+.rule{height:2pt;width:100%;background:linear-gradient(90deg,transparent,var(--gold2),var(--gold));border-radius:2pt}
+
+/* ---------- meta bar ---------- */
+.metabar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:4mm;
+  border:0.5pt solid var(--line);background:var(--panel);border-radius:1.2mm;overflow:hidden}
+.metabar div{padding:1.5mm 3mm;border-left:0.5pt solid var(--line2)}
+.metabar div:last-child{border-left:0}
+.metabar .k{font-size:5.9pt;color:var(--ink3);letter-spacing:.2px}
+.metabar .v{font-size:8.6pt;font-weight:700;color:var(--ink);margin-top:.3mm}
+
+/* ---------- parties ---------- */
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-top:3.4mm}
+.card{border:0.5pt solid var(--line);border-radius:1.2mm;padding:2.2mm 3mm 2.4mm;background:#fff;position:relative}
+.card-h{display:flex;align-items:center;gap:1.6mm;margin-bottom:2mm}
+.card-h i{width:1.6mm;height:1.6mm;background:var(--gold);transform:rotate(45deg);display:inline-block}
+.card-h span{font-size:7.2pt;font-weight:700;letter-spacing:.2px}
+.card-h em{font-family:'Cormorant',serif;font-style:normal;font-size:6.4pt;color:var(--gold);
+  letter-spacing:1.6px;text-transform:uppercase;margin-inline-start:auto}
+.f{display:flex;gap:1.5mm;align-items:baseline;margin-bottom:.7mm}
+.f .lbl{font-size:6.3pt;color:var(--ink3);flex:0 0 21mm}
+.f .val{font-size:7.4pt;font-weight:600;color:var(--ink);flex:1;
+  border-bottom:0.4pt dotted #D6CAB3;min-height:3.4mm}
+.f .val.blank{border-bottom:0.5pt dotted #C6B99F}
+.f2{display:flex;gap:3mm}
+.f2>.f{flex:1}
+.f2>.f .lbl{flex:0 0 auto}
+
+/* ---------- rate strip ---------- */
+.rates{display:grid;grid-template-columns:auto repeat(4,1fr);gap:0;margin-top:3.4mm;
+  border:0.5pt solid var(--gold);border-radius:1.2mm;overflow:hidden;background:#FCF8EF}
+.rates .head{background:var(--dark);color:var(--gold2);display:flex;align-items:center;
+  padding:0 3.5mm;font-size:6.8pt;font-weight:700;letter-spacing:.2px;gap:1.5mm}
+.rates .cell{padding:1.4mm 3mm;border-left:0.5pt solid var(--gold3)}
+.rates .cell:last-child{border-left:0}
+.rates .k{font-size:5.9pt;color:#8C7C5E}
+.rates .v{font-size:8.2pt;font-weight:700;color:var(--ink)}
+.rates .v i{font-style:normal;font-size:5.9pt;font-weight:500;color:var(--ink3)}
+
+/* ---------- items table ---------- */
+table{width:100%;border-collapse:collapse;margin-top:3mm;table-layout:fixed}
+thead th{
+  background:var(--dark);color:#EBDFC2;font-size:6.3pt;font-weight:600;
+  padding:1.8mm .6mm;text-align:center;line-height:1.25;border-left:0.4pt solid #3A3226;
+}
+thead th:last-child{border-left:0}
+thead th em{display:block;font-family:'Cormorant',serif;font-style:normal;font-size:5.1pt;
+  color:#A08C5E;letter-spacing:.9px;text-transform:uppercase;margin-top:.2mm}
+tbody td{padding:1.2mm .6mm;border-bottom:0.4pt solid var(--line2);vertical-align:middle;font-size:7.1pt}
+tbody tr:nth-child(even){background:#FBF8F1}
+td.c{text-align:center}
+td.m{text-align:center;font-size:6.9pt;font-weight:600;white-space:nowrap}
+td.m.total{font-weight:800;font-size:7.4pt;color:#141009}
+td.num{font-weight:600}
+td.strong{font-weight:800;font-size:7.5pt}
+td.desc{text-align:right;padding-right:2mm}
+.d-name{font-size:7.4pt;font-weight:700;line-height:1.3}
+.d-spec{font-size:5.75pt;color:var(--ink3);line-height:1.4;margin-top:.15mm}
+.d-code{font-size:5.6pt;color:var(--gold);letter-spacing:.2px;margin-top:.15mm}
+.chip{display:block;background:#F1E8D3;color:#7A6428;border-radius:6pt;
+  padding:.1mm 1.1mm;font-size:5.4pt;font-weight:700;margin:.5mm auto 0;width:fit-content}
+tfoot td{background:var(--panel);border-top:0.8pt solid var(--gold);font-weight:800;
+  font-size:7pt;padding:1.8mm .6mm;text-align:center;white-space:nowrap}
+tfoot td.lbl{text-align:right;padding-right:2mm;font-size:7pt;letter-spacing:.2px}
+
+/* ---------- bottom ---------- */
+.bottom{display:grid;grid-template-columns:1fr 74mm;gap:4mm;margin-top:3.4mm;align-items:start}
+.words{border:0.5pt solid var(--gold);background:#FCF8EF;border-radius:1.2mm;
+  padding:1.9mm 3.2mm;display:flex;gap:2.5mm;align-items:baseline}
+.words .k{font-size:6.4pt;color:var(--ink3);flex:0 0 auto;white-space:nowrap}
+.words .v{font-size:8.2pt;font-weight:700;line-height:1.5}
+.pay{margin-top:2.6mm;border:0.5pt solid var(--line);border-radius:1.2mm;overflow:hidden}
+.pay-h{background:var(--panel);padding:1.5mm 3mm;font-size:6.8pt;font-weight:700;
+  border-bottom:0.5pt solid var(--line);display:flex;gap:1.5mm;align-items:center}
+.pay-h i{width:1.5mm;height:1.5mm;background:var(--gold);transform:rotate(45deg)}
+.pay-b{display:grid;grid-template-columns:repeat(3,1fr);padding:.5mm 0}
+.pay-b div{padding:1.15mm 3mm;border-left:0.5pt solid var(--line2)}
+.pay-b div:last-child{border-left:0}
+.pay-b .k{font-size:5.9pt;color:var(--ink3)}
+.pay-b .v{font-size:7.6pt;font-weight:700}
+.terms{margin-top:2.6mm}
+.terms-h{font-size:6.6pt;font-weight:700;color:var(--ink2);margin-bottom:1.2mm;
+  display:flex;align-items:center;gap:1.5mm}
+.terms-h::after{content:"";flex:1;height:0.4pt;background:var(--line)}
+.terms ol{padding-right:3.6mm;columns:2;column-gap:5mm}
+.terms li{font-size:5.75pt;color:var(--ink2);line-height:1.5;margin-bottom:.35mm;
+  break-inside:avoid}
+.terms li::marker{color:var(--gold);font-weight:700}
+
+/* totals panel */
+.totals{border:0.6pt solid var(--gold);border-radius:1.4mm;overflow:hidden;background:#fff}
+.totals .t-h{background:var(--dark);color:var(--gold2);padding:1.8mm 3mm;font-size:7pt;
+  font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.totals .t-h em{font-family:'Cormorant',serif;font-style:normal;font-size:6pt;letter-spacing:1.6px;
+  text-transform:uppercase;color:#9A8656}
+.tr{display:flex;justify-content:space-between;padding:1.05mm 3mm;font-size:6.9pt;
+  border-bottom:0.4pt solid var(--line2)}
+.tr .k{color:var(--ink2)}
+.tr .v{font-weight:700;direction:ltr;unicode-bidi:isolate}
+.tr.minus .v{color:#8A2E2E}
+.tr.sub{background:var(--panel);font-weight:700}
+.tr.sub .k{color:var(--ink);font-weight:700}
+.grand{background:linear-gradient(135deg,#221C14,#332A1D);color:#fff;padding:2.6mm 3mm;
+  display:flex;justify-content:space-between;align-items:center}
+.grand .k{font-size:7.4pt;color:var(--gold2);font-weight:700}
+.grand .v{font-size:12.5pt;font-weight:800;letter-spacing:-.2px}
+.grand .v i{font-style:normal;font-size:6.6pt;font-weight:500;color:#CFC3A6;margin-right:1mm}
+
+/* signatures */
+.signs{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:3mm}
+.sign{border:0.5pt dashed var(--line);border-radius:1.2mm;height:13.5mm;padding:1.5mm 2.6mm;
+  display:flex;flex-direction:column;justify-content:space-between;background:#FEFCF8}
+.sign .k{font-size:6.4pt;font-weight:700;color:var(--ink2)}
+.sign .d{font-size:5.5pt;color:#B0A490;line-height:1.5}
+.sign .line{border-bottom:0.4pt solid var(--line);}
+footer{position:absolute;left:11mm;right:11mm;bottom:8.4mm;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:0.5pt solid var(--line);padding-top:1.8mm;font-size:5.7pt;color:var(--ink3)}
+footer .fa-note{max-width:120mm;line-height:1.5}
+footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;color:var(--gold);
+  font-size:6.4pt;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="frame"></div>
+  <div class="corner c-tr"></div><div class="corner c-tl"></div>
+  <div class="corner c-br"></div><div class="corner c-bl"></div>
+  <div class="watermark">◈</div>
+
+  <div class="inner">
+    <header>
+      <div class="brand">
+        <div class="medallion"><span>◈</span></div>
+        <div class="brand-lines">
+          <div class="brand-hint">محل درج نام، نشان و مشخصات واحد صنفی</div>
+          <div class="dot-line w2"><b>نام فروشگاه :</b></div>
+          <div class="dot-line w1"><b>نشانی :</b></div>
+        </div>
+      </div>
+      <div class="titlebox">
+        <div class="eyebrow">Gold &amp; Jewelry Invoice</div>
+        <div class="title">فاکتور فروش طلا و جواهر <small>/ رسمی</small></div>
+        <div class="rule"></div>
+      </div>
+    </header>
+
+    <div class="metabar">
+      <div><div class="k">شماره فاکتور</div><div class="v">۱۴۰۵/۰۴-۰۸۷۳</div></div>
+      <div><div class="k">تاریخ صدور</div><div class="v">۱۴۰۵/۰۶/۱۶</div></div>
+      <div><div class="k">ساعت صدور</div><div class="v">۱۷:۴۲</div></div>
+      <div><div class="k">شماره منحصربه‌فرد مالیاتی</div><div class="v">A۱B۲-۰۸۷۳-۱۴۰۵</div></div>
+    </div>
+
+    <div class="parties">
+      <div class="card">
+        <div class="card-h"><i></i><span>مشخصات فروشنده</span><em>Seller</em></div>
+        <div class="f"><div class="lbl">نام واحد صنفی</div><div class="val blank"></div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">شماره پروانه کسب</div><div class="val blank"></div></div>
+          <div class="f"><div class="lbl">شناسه ملی</div><div class="val blank"></div></div>
+        </div>
+        <div class="f"><div class="lbl">نشانی</div><div class="val blank"></div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">تلفن</div><div class="val blank"></div></div>
+          <div class="f"><div class="lbl">کدپستی</div><div class="val blank"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><i></i><span>مشخصات خریدار</span><em>Buyer</em></div>
+        <div class="f"><div class="lbl">نام و نام خانوادگی</div><div class="val">سرکار خانم سارا محمدی</div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">کد ملی</div><div class="val">۰۰۲۳۴۵۶۷۸۹</div></div>
+          <div class="f"><div class="lbl">تلفن همراه</div><div class="val"><bdi dir="ltr">۰۹۱۲ ۳۴۵ ۶۷۸۹</bdi></div></div>
+        </div>
+        <div class="f"><div class="lbl">نشانی</div><div class="val">تهران، خیابان ولیعصر، کوچه بهار، پلاک ۲۴، واحد ۷</div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">کدپستی</div><div class="val">۱۴۳۴۶۷۸۹۱۰</div></div>
+          <div class="f"><div class="lbl">کد اقتصادی</div><div class="val">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rates">
+      <div class="head"><i>◈</i> نرخ‌های مبنای محاسبه</div>
+      <div class="cell"><div class="k">هر گرم طلای ۱۸ عیار</div><div class="v">{{RATE}} <i>تومان</i></div></div>
+      <div class="cell"><div class="k">مظنه مثقال ۱۷ عیار</div><div class="v">{{MESGHAL}} <i>تومان</i></div></div>
+      <div class="cell"><div class="k">انس جهانی طلا</div><div class="v">{{OUNCE}} <i>دلار</i></div></div>
+      <div class="cell"><div class="k">اعتبار نرخ</div><div class="v">۱۴۰۵/۰۶/۱۶ <i>ساعت ۱۷:۰۰</i></div></div>
+    </div>
+
+    <table>
+      <colgroup>
+        <col style="width:6mm"><col><col style="width:11mm"><col style="width:6.5mm">
+        <col style="width:12mm"><col style="width:18.5mm"><col style="width:18.5mm">
+        <col style="width:18.5mm"><col style="width:18.5mm"><col style="width:16.5mm">
+        <col style="width:19.5mm">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ردیف<em>No</em></th>
+          <th>شرح کالا و مشخصات فنی<em>Description</em></th>
+          <th>عیار<em>Karat</em></th>
+          <th>تعداد<em>Qty</em></th>
+          <th>وزن (گرم)<em>Weight</em></th>
+          <th>ارزش طلا<em>Gold value</em></th>
+          <th>اجرت ساخت<em>Making</em></th>
+          <th>سود فروشنده<em>Profit</em></th>
+          <th>سنگ و نگین<em>Stone</em></th>
+          <th>مالیات ارزش افزوده<em>VAT ۱۰٪</em></th>
+          <th>مبلغ کل (تومان)<em>Line total</em></th>
+        </tr>
+      </thead>
+      <tbody>{{ROWS}}</tbody>
+      <tfoot>
+        <tr>
+          <td class="lbl" colspan="3">جمع کل — Total</td>
+          <td>{{TQTY}}</td>
+          <td>{{TW}}</td>
+          <td>{{TGOLD}}</td>
+          <td>{{TOJRAT}}</td>
+          <td>{{TSOOD}}</td>
+          <td>{{TSTONE}}</td>
+          <td>{{TVAT}}</td>
+          <td>{{SUBTOTAL}}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="bottom">
+      <div>
+        <div class="words">
+          <div class="k">مبلغ قابل پرداخت به حروف :</div>
+          <div class="v">{{WORDS}}</div>
+        </div>
+
+        <div class="pay">
+          <div class="pay-h"><i></i> اطلاعات پرداخت</div>
+          <div class="pay-b">
+            <div><div class="k">کارتخوان — پیگیری ۸۴۵۱۲۳</div><div class="v">{{POS}}</div></div>
+            <div><div class="k">انتقال وجه / کارت به کارت</div><div class="v">{{TRANSFER}}</div></div>
+            <div><div class="k">مانده حساب</div><div class="v">{{REMAIN}}</div></div>
+          </div>
+        </div>
+
+        <div class="terms">
+          <div class="terms-h">شرایط و ضوابط فروش</div>
+          <ol>
+            <li>وزن و عیار اقلام با ترازوی کالیبره‌شده توزین و دارای انگ رسمی مرکز ملی استاندارد است.</li>
+            <li>مالیات بر ارزش افزوده صرفاً بر «اجرت ساخت و سود فروشنده» محاسبه شده و به ارزش طلای خام تعلق نمی‌گیرد.</li>
+            <li>مرجوعی کالای بدون عیب تا ۷۲ ساعت با ارائه اصل فاکتور و برچسب سالم، با کسر اجرت و سود پذیرفته می‌شود.</li>
+            <li>اقلام سفارشی، حکاکی‌شده و سایزشده قابل استرداد نیست.</li>
+            <li>ضمانت بندکشی، آبکاری و قفل به مدت ۶ ماه از تاریخ این فاکتور معتبر است.</li>
+            <li>این فاکتور بدون مهر و امضای فروشنده و درج کامل مشخصات، فاقد اعتبار قانونی است.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div>
+        <div class="totals">
+          <div class="t-h"><span>خلاصه صورتحساب</span><em>Summary</em></div>
+          <div class="tr"><span class="k">ارزش طلای خام ({{TW}} گرم)</span><span class="v">{{TGOLD}}</span></div>
+          <div class="tr"><span class="k">اجرت ساخت</span><span class="v">{{TOJRAT}}</span></div>
+          <div class="tr"><span class="k">سود فروشنده</span><span class="v">{{TSOOD}}</span></div>
+          <div class="tr"><span class="k">سنگ و نگین</span><span class="v">{{TSTONE}}</span></div>
+          <div class="tr"><span class="k">مالیات بر ارزش افزوده (۱۰٪)</span><span class="v">{{TVAT}}</span></div>
+          <div class="tr sub"><span class="k">جمع صورتحساب</span><span class="v">{{SUBTOTAL}}</span></div>
+          <div class="tr minus"><span class="k">تخفیف</span><span class="v">−{{DISCOUNT}}</span></div>
+          <div class="tr"><span class="k">گرد کردن</span><span class="v">{{ROUND}}</span></div>
+          <div class="grand"><span class="k">مبلغ قابل پرداخت</span>
+            <span class="v">{{PAYABLE}}<i>تومان</i></span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="signs">
+      <div class="sign">
+        <div class="k">مهر و امضای فروشنده</div>
+        <div class="d">Seller stamp &amp; signature</div>
+      </div>
+      <div class="sign">
+        <div class="k">امضای خریدار</div>
+        <div class="d">اینجانب مشخصات، وزن، عیار و مبلغ مندرج در این فاکتور را تأیید و کالا را تحویل گرفتم.</div>
+      </div>
+      <div class="sign">
+        <div class="k">تاریخ و ساعت تحویل کالا</div>
+        <div class="d">Delivery date &amp; time</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="fa-note">این فاکتور به‌صورت الکترونیکی صادر شده و در سامانه مؤدیان مالیاتی قابل استعلام است. نسخه اول: خریدار — نسخه دوم: فروشنده.</div>
+    <em>Page 1 / 1</em>
+  </footer>
+</div>
+</body>
+</html>
