@@ -76,6 +76,7 @@ def build(fa):
         "REMAIN": out("rem"),
         "NOTES": "".join('<div class="nl">%s</div>' % inp("n%d" % i, "nli")
                          for i in range(1, 4)),
+        "BASEAYAR": '<span class="o o-baseayar">۱۸</span>',
         "TOOLBAR": TOOLBAR,
         "EXTRACSS": "\n" + _read("form.css"),
         "EXTRAJS": "<script>\n" + _read("form.js").replace("__ROWS__", str(ROWS)) + "\n</script>",
@@ -90,6 +91,7 @@ TOOLBAR = """
   <span class="sep"></span>
   <label>سود پیش‌فرض <input id="soodDef" class="tin" value="۷" inputmode="decimal">٪</label>
   <label>مالیات <input id="vatp" class="tin" value="۱۰" inputmode="decimal">٪</label>
+  <label title="نرخ هر گرمی که در فاکتور وارد می‌کنید، مربوط به کدام عیار است">نرخ برای عیار <input id="baseAyar" class="tin" value="۱۸" inputmode="decimal"></label>
   <label title="درصد اجرتی که خودتان موقع خرید کالا پرداخت کرده‌اید">اجرت خرید <input id="buyOjrat" class="tin" placeholder="—" inputmode="decimal">٪</label>
   <span class="sep"></span>
   <span class="profit">سود شما در این فاکتور: <b id="myprofit">۰</b> تومان</span>

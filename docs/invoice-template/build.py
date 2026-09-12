@@ -126,6 +126,7 @@ else:
       "POS": money(paid_pos), "TRANSFER": money(payable - paid_pos), "REMAIN": money(0),
     }
 
+V.setdefault("BASEAYAR", "۱۸")
 V.setdefault("TOOLBAR", "")
 V.setdefault("EXTRACSS", "")
 V.setdefault("EXTRAJS", "")

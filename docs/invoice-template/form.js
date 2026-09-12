@@ -62,6 +62,32 @@
     }
     return fa(s);
   }
+  /* عیار: قبول هم به مقیاس عیار (۱۸، ۲۱، ۲۴) و هم به مقیاس هزارم (۷۵۰، ۸۷۵، ۱۰۰۰).
+     به‌صورت کسر دقیق نگه داشته می‌شود تا ۲۲ عیار (۰.۹۱۶۶…) گرد نشود. */
+  var K100 = pow10(2), K24000 = BigInt(24000), K1000000 = pow10(6);
+  function purity(v){
+    var x = scaled(v, 3);                       // milli-units of whatever was typed
+    if (x <= ZERO) return null;
+    return x < K100 * K1000 ? { n: x, d: K24000 }   // 6..99  -> karat scale
+                            : { n: x, d: K1000000 }; // 100+   -> per-mille scale
+  }
+  function ayarNum(v){
+    var p = purity(v);
+    return p ? pct(divRound(p.n * K100, K1000)) : "";
+  }
+  function ayarUnit(v){
+    var p = purity(v);
+    return !p || p.d === K24000 ? "عیار" : "هزارم";
+  }
+  function ayarText(v){
+    return purity(v) ? ayarNum(v) + " " + ayarUnit(v) : "";
+  }
+  function ayarRatio(item, base){          // compact when both share a scale
+    if (ayarUnit(item) === ayarUnit(base))
+      return "(" + ayarNum(item) + " ÷ " + ayarNum(base) + " " + ayarUnit(base) + ")";
+    return "(" + ayarText(item) + " ÷ " + ayarText(base) + ")";
+  }
+
   function ratio(part, whole){        // two decimals, exact
     if (!whole || whole === ZERO) return "۰";
     var bp = divRound(part * K10000, whole);
@@ -120,6 +146,8 @@
   function calc(){
     var rate  = scaled($("rate").value, 0);
     var vatBp = scaled($("vatp").value, 2);
+    var base  = purity($("baseAyar").value) || { n: BigInt(18000), d: K24000 };
+    set("baseayar", ayarText($("baseAyar").value).replace(" عیار", "").replace(" هزارم", ""));
     var T = { mg: ZERO, qty: 0, gold: ZERO, ojrat: ZERO, sood: ZERO,
               mk: ZERO, stone: ZERO, vat: ZERO, tot: ZERO };
     var steps = [];
@@ -132,7 +160,9 @@
       var qty   = parseInt(en($("q" + i).value), 10) || 0;
       var used  = rowUsed(i);
 
-      var gold  = divRound(mg * rate, K1000);
+      // ارزش طلا = وزن × نرخ × (عیار کالا ÷ عیار مبنای نرخ) — یک بار گرد می‌شود
+      var pi = purity($("k" + i).value) || base;
+      var gold = divRound(mg * rate * pi.n * base.d, K1000 * pi.d * base.n);
       var ojrat = divRound(gold * opBp, K10000);
       var sood  = divRound((gold + ojrat) * spBp, K10000);
       var mk    = ojrat + sood;
@@ -148,6 +178,7 @@
         T.mg += mg; T.qty += qty; T.gold += gold; T.ojrat += ojrat;
         T.sood += sood; T.mk += mk; T.stone += stone; T.vat += vat; T.tot += tot;
         steps.push({ i: i, name: ($("d" + i).value || "").trim(), mg: mg, rate: rate,
+                     ayar: $("k" + i).value, sameAyar: pi.n * base.d === base.n * pi.d,
                      opBp: opBp, spBp: spBp, vatBp: vatBp, gold: gold, ojrat: ojrat,
                      sood: sood, mk: mk, stone: stone, vat: vat, tot: tot });
       }
@@ -193,7 +224,9 @@
       var s = steps[k];
       h += '<div class="cp-row"><div class="cp-rh"><b>ردیف ' + fa(s.i) + '</b>' +
            (s.name ? '<span>' + esc(s.name) + '</span>' : '') + '</div><table class="cp-t">' +
-        line("ارزش طلا", weight(s.mg) + " گرم × " + money(s.rate), money0(s.gold)) +
+        line("ارزش طلا", weight(s.mg) + " گرم × " + money(s.rate) +
+             (s.sameAyar ? "" : " × " + ayarRatio(s.ayar, $("baseAyar").value)),
+             money0(s.gold)) +
         line("اجرت " + pct(s.opBp) + "٪", money0(s.gold) + " × " + pct(s.opBp) + "٪", money0(s.ojrat)) +
         line("سود " + pct(s.spBp) + "٪", "(" + money0(s.gold) + " + " + money0(s.ojrat) + ") × " + pct(s.spBp) + "٪", money0(s.sood), "hot") +
         line("اجرت و کارمزد", money0(s.ojrat) + " + " + money0(s.sood), money0(s.mk)) +
@@ -306,8 +339,10 @@
       defaults(); calc(); save();
     });
     document.addEventListener("blur", function(e){
-      if (e.target && e.target.classList && e.target.classList.contains("i")){
-        fmt(e.target); calc(); save();
+      if (!e.target || !e.target.classList) return;
+      if (e.target.classList.contains("i")){ fmt(e.target); calc(); save(); }
+      else if (e.target.classList.contains("tin")){
+        e.target.value = faDigits(en(e.target.value)); calc(); save();
       }
     }, true);
     window.addEventListener("beforeprint", function(){ fmtAll(); calc(); });
