@@ -53,7 +53,7 @@ def build(fa):
     V = {
         "BODYCLASS": "form",
         "ROWS": "".join(rows),
-        "ROWH": "8.4mm",
+        "ROWH": "7.6mm",
         "SHOPNAME": inp("shop", "hdr", 'style="padding-right:19mm"'),
         "SHOPADDR": inp("shopaddr", "hdr", 'style="padding-right:12mm"'),
         "INVNO": inp("invno", "u"), "IDATE": inp("idate", "u"),

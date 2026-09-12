@@ -322,6 +322,20 @@
     }
   }
 
+  /* روی نمایشگر باریک (گوشی) کل برگه A4 را کوچک می‌کند تا در عرض صفحه جا شود.
+     هنگام چاپ به اندازه واقعی برمی‌گردد. */
+  function fitToScreen(){
+    var page = document.querySelector(".page");
+    if (!page) return;
+    page.style.zoom = "";
+    var avail = document.documentElement.clientWidth, w = page.offsetWidth;
+    if (avail && w && avail < w) page.style.zoom = Math.max(0.3, avail / w).toFixed(4);
+  }
+  function fullSize(){
+    var page = document.querySelector(".page");
+    if (page) page.style.zoom = "";
+  }
+
   document.addEventListener("DOMContentLoaded", function(){
     if (typeof BigInt === "undefined"){
       var w = document.createElement("div");
@@ -345,7 +359,10 @@
         e.target.value = faDigits(en(e.target.value)); calc(); save();
       }
     }, true);
-    window.addEventListener("beforeprint", function(){ fmtAll(); calc(); });
+    fitToScreen();
+    window.addEventListener("resize", fitToScreen);
+    window.addEventListener("beforeprint", function(){ fullSize(); fmtAll(); calc(); });
+    window.addEventListener("afterprint", fitToScreen);
 
     $("idate").addEventListener("focus", function(){
       if (!this.value) try {

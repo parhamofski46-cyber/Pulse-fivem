@@ -43,11 +43,20 @@ body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .nl .i{border:0;font-size:6.6pt;height:100%}
 td .i{font-size:7pt;font-weight:600}
 .frow td{vertical-align:middle}
-.chip.noprint{background:#F4EEE0;color:#8A7442;font-size:5.2pt;font-weight:600;
-  padding:.3mm 1.2mm;margin-top:.7mm;white-space:nowrap;display:flex;gap:.8mm;align-items:center;
+.chip.noprint{background:#F4EEE0;color:#8A7442;font-size:5pt;font-weight:600;line-height:1.25;
+  padding:0 1mm;margin:.4mm auto 0;white-space:nowrap;display:flex;gap:.6mm;align-items:center;
   justify-content:center;width:fit-content}
-.ci{width:5.5mm;font-size:5.6pt;font-weight:700;text-align:center;border-bottom:0.4pt dotted #B9A87F;
-  background:#fff;border-radius:.5mm}
+.ci{width:5.2mm;font-size:5.2pt;font-weight:700;line-height:1.25;text-align:center;padding:0;
+  border-bottom:0.4pt dotted #B9A87F;background:#fff;border-radius:.5mm}
+.frow td{padding-top:.5mm;padding-bottom:.5mm}
+.frow td .i{line-height:1.3}
+
+/* On screen the per-row percent chips add height that print does not have;
+   let the sheet grow instead of clipping the signatures. Print stays exact A4. */
+@media screen{
+  .page{height:auto;min-height:297mm;overflow:visible;padding-bottom:6mm}
+  .page>footer{position:static;left:auto;right:auto;bottom:auto;margin:4mm 2.5mm 0}
+}
 .o{display:inline-block}
 .words .o{min-height:4mm}
 .grand .o-payable:empty::before{content:"—";opacity:.35}
