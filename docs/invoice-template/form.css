@@ -153,3 +153,10 @@ tr.coin .chip{visibility:hidden}
 .lb-diag .d-ok{color:#7FB07A}
 .lb-diag .d-no{color:#A8836B}
 @media print{.lb-diag{display:none!important}}
+
+/* روی نمایشگر باریک، توضیحات بلند نوارها فضای فاکتور را نگیرند */
+@media screen and (max-width: 760px){
+  .toolbar .note,.livebar .lb-note,.coinbar .cb-note{display:none}
+  .toolbar,.livebar,.coinbar{padding-inline:3mm;gap:2.4mm}
+  .livecfg{padding-inline:3mm}
+}

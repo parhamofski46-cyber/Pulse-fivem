@@ -713,7 +713,7 @@
     if (c && c.vals){ applyVals(c.vals, c.src, new Date(c.t), true); }
     else if ($("lbStatus")){
       $("lbStatus").className = "lb-status warn";
-      $("lbStatus").textContent = explain ? failureHint() : "نرخی ذخیره نشده — دستی وارد کنید";
+      $("lbStatus").textContent = explain ? failureHint() : "نرخ‌ها را وارد کنید — یا «به‌روزرسانی» را بزنید";
     }
     renderAttempts();
   }
@@ -729,10 +729,12 @@
              "تا آن موقع نرخ‌ها را دستی وارد کنید.";
     return "هیچ منبعی جواب نداد — گزارش تلاش‌ها را ببینید؛ علت هر کدام آنجا نوشته شده";
   }
+  var showDiag = false;
   function renderAttempts(){
-    var box = $("lbDiag");
+    var box = $("lbDiag"), btn = $("lbWhy");
     if (!box) return;
-    if (!attempts.length){ box.hidden = true; box.innerHTML = ""; return; }
+    if (btn) btn.hidden = !attempts.length;
+    if (!attempts.length || !showDiag){ box.hidden = true; box.innerHTML = ""; return; }
     box.hidden = false;
     box.innerHTML = "<b>گزارش تلاش‌ها:</b> " + attempts.map(function(a){
       return '<span class="' + (a.ok ? "d-ok" : "d-no") + '">' + esc(a.name) + " — " +
@@ -776,8 +778,10 @@
     syncPreset();
     $("lbNow").onclick = function(){ refresh(true); };
     $("lbCfgBtn").onclick = function(){ $("livecfg").hidden = !$("livecfg").hidden; };
+    $("lbWhy").onclick = function(){ showDiag = !showDiag; renderAttempts(); };
     $("lbLock").onclick = window.releaseLocks;
     $("lbTest").onclick = function(){
+      showDiag = true;
       $("lbTestOut").textContent = "در حال آزمایش همه منابع…" +
         "";
       refresh(true);

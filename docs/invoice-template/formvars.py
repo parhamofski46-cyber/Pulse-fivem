@@ -102,7 +102,7 @@ TOOLBAR = """
   <label title="نرخ هر گرمی که وارد می‌کنید مربوط به کدام عیار است">نرخ برای عیار <input id="baseAyar" class="tin" value="۱۸" inputmode="decimal"></label>
   <label title="درصد اجرتی که خودتان موقع خرید کالا پرداخت کرده‌اید">اجرت خرید <input id="buyOjrat" class="tin" placeholder="—" inputmode="decimal">٪</label>
   <span class="sep"></span>
-  <label class="chk"><input type="checkbox" id="showCalc" checked><span>نمایش محاسبات</span></label>
+  <label class="chk"><input type="checkbox" id="showCalc"><span>نمایش محاسبات</span></label>
   <label class="chk"><input type="checkbox" id="coinMode"><span>فروش سکه</span></label>
   <span class="sep"></span>
   <span class="profit">سود شما در این فاکتور: <b id="myprofit">۰</b> تومان</span>
@@ -116,6 +116,7 @@ TOOLBAR = """
   <label class="chk"><input type="checkbox" id="lbAuto" class="cfgf" checked><span>خودکار</span></label>
   <button class="btn sm lock" id="lbLock" type="button" hidden></button>
   <label class="chk" title="اگر منبع اجازه خواندن مستقیم ندهد، از یک واسطه عمومی رد می‌شود"><input type="checkbox" id="lbProxy" class="cfgf" checked><span>واسطه در صورت نیاز</span></label>
+  <button class="btn sm" id="lbWhy" type="button" hidden>جزئیات</button>
   <button class="btn sm" id="lbCfgBtn" type="button">تنظیم منبع</button>
   <span class="lb-note">هر نرخی که دستی تایپ کنید قفل می‌شود و به‌روزرسانی خودکار آن را عوض نمی‌کند</span>
 </div>
