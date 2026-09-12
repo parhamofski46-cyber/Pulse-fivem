@@ -895,9 +895,12 @@ tr.coin .chip{visibility:hidden}
         mk    = sood;
         vat   = divRound(mk * vatBp, K10000);
         tot   = gold + mk + stone + vat;
-        if ($("d" + i).value.trim() === "" && qty > 0) $("d" + i).value = C.name;
-        $("k" + i).value = C.ayar;
-        $("w" + i).value = weight(mg);
+        // مشخصات استاندارد سکه پر می‌شود، ولی نه داخل فیلدی که در حال تایپ در آن هستید
+        var busy = document.activeElement;
+        if ($("d" + i) !== busy && $("d" + i).value.trim() === "" && qty > 0)
+          $("d" + i).value = C.name;
+        if ($("k" + i) !== busy) $("k" + i).value = C.ayar;
+        if ($("w" + i) !== busy) $("w" + i).value = weight(mg);
       } else {
         mg    = pos(scaled($("w" + i).value, 3));
         opBp  = pos(scaled($("op" + i).value, 2));
@@ -1087,13 +1090,16 @@ tr.coin .chip{visibility:hidden}
   };
   function defaults(){
     var sd = $("soodDef").value || "۷";
+    // هرگز داخل فیلدی که همین حالا در حال تایپ در آن هستید نوشته نمی‌شود؛
+    // در غیر این صورت پاک‌کردن آخرین رقم بلافاصله با مقدار پیش‌فرض پر می‌شد.
+    var busy = document.activeElement;
+    function fill(el, v){ if (el && el !== busy && !el.value) el.value = v; }
     for (var i = 1; i <= N; i++){
       if (i === 1 || rowUsed(i)){
         // عیار پیش‌فرض هر ردیف = همان عیار مبنای نرخ، نه عدد ثابت ۱۸
-        if (!$("k" + i).value)
-          $("k" + i).value = faDigits(en($("baseAyar").value)) || "۱۸";
-        if (!$("q" + i).value) $("q" + i).value = "۱";
-        if (!$("sp" + i).value) $("sp" + i).value = sd;
+        fill($("k" + i), faDigits(en($("baseAyar").value)) || "۱۸");
+        fill($("q" + i), "۱");
+        fill($("sp" + i), sd);
       }
     }
   }
