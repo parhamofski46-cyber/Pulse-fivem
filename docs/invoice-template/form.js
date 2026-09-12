@@ -28,18 +28,21 @@
   function pow10(n){ var r = BigInt(1); for (var i = 0; i < n; i++) r *= TEN; return r; }
   var K1000 = pow10(3), K10000 = pow10(4);
 
-  function scaled(v, dec){            // "12.725" , 3  ->  12725n
+  function scaled(v, dec){            // "12.7255" , 3  ->  12726n  (نیم‌به‌بالا)
     var s = en(v).trim();
     if (!s) return ZERO;
     var neg = s.charAt(0) === "-";
     if (neg) s = s.slice(1);
     var p = s.split("."), ip = p[0] || "0", fp = p[1] || "";
-    while (fp.length < dec) fp += "0";
-    fp = fp.slice(0, dec);
     if (!/^\d*$/.test(ip) || !/^\d*$/.test(fp)) return ZERO;
-    var r = BigInt(ip || "0") * pow10(dec) + BigInt(fp || "0");
+    // یک رقم اضافه نگه می‌داریم تا به‌جای بریدن، گرد کنیم
+    var keep = fp.slice(0, dec), extra = fp.charAt(dec);
+    while (keep.length < dec) keep += "0";
+    var r = BigInt(ip || "0") * pow10(dec) + BigInt(keep || "0");
+    if (extra >= "5") r += BigInt(1);
     return neg ? -r : r;
   }
+  function pos(x){ return x < ZERO ? ZERO : x; }   // هیچ ورودی منفی وارد محاسبه نشود
   function divRound(a, b){            // round half away from zero
     if (a < ZERO) return -divRound(-a, b);
     return (a + b / BigInt(2)) / b;
@@ -66,7 +69,7 @@
      به‌صورت کسر دقیق نگه داشته می‌شود تا ۲۲ عیار (۰.۹۱۶۶…) گرد نشود. */
   var K100 = pow10(2), K24000 = BigInt(24000), K1000000 = pow10(6);
   function purity(v){
-    var x = scaled(v, 3);                       // milli-units of whatever was typed
+    var x = pos(scaled(v, 3));                  // milli-units of whatever was typed
     if (x <= ZERO) return null;
     return x < K100 * K1000 ? { n: x, d: K24000 }   // 6..99  -> karat scale
                             : { n: x, d: K1000000 }; // 100+   -> per-mille scale
@@ -162,8 +165,8 @@
 
   /* ---------- the one calculation ---------- */
   function calc(){
-    var rate  = scaled($("rate").value, 0);
-    var vatBp = scaled($("vatp").value, 2);
+    var rate  = pos(scaled($("rate").value, 0));
+    var vatBp = pos(scaled($("vatp").value, 2));
     var base  = purity($("baseAyar").value) || { n: BigInt(18000), d: K24000 };
     set("baseayar", ayarText($("baseAyar").value).replace(" عیار", "").replace(" هزارم", ""));
     var T = { mg: ZERO, qty: 0, gold: ZERO, ojrat: ZERO, sood: ZERO,
@@ -172,8 +175,8 @@
 
     for (var i = 1; i <= N; i++){
       var coin  = coinOf(i);
-      var stone = scaled($("st" + i).value, 0);
-      var qty   = parseInt(en($("q" + i).value), 10) || 0;
+      var stone = pos(scaled($("st" + i).value, 0));
+      var qty   = Math.max(0, parseInt(en($("q" + i).value), 10) || 0);
       var used  = rowUsed(i);
       var row   = $("d" + i).closest("tr");
       if (row) row.classList.toggle("coin", !!coin);
@@ -184,12 +187,12 @@
         /* سکه: قیمت هر قطعه ضربدر تعداد؛ اجرت ساخت ندارد و سود فروشنده
            به‌صورت درصدی روی ارزش سکه محاسبه و در «اجرت و کارمزد» ادغام می‌شود. */
         var C = COINS[coin];
-        unit  = scaled($("pc_" + coin).value, 0);
+        unit  = pos(scaled($("pc_" + coin).value, 0));
         var q = BigInt(qty);
         mg    = BigInt(C.mg) * q;
         gold  = unit * q;
         opBp  = ZERO;
-        spBp  = scaled($("coinSood").value, 2);
+        spBp  = pos(scaled($("coinSood").value, 2));
         ojrat = ZERO;
         sood  = divRound(gold * spBp, K10000);
         mk    = sood;
@@ -199,9 +202,9 @@
         $("k" + i).value = C.ayar;
         $("w" + i).value = weight(mg);
       } else {
-        mg    = scaled($("w" + i).value, 3);
-        opBp  = scaled($("op" + i).value, 2);
-        spBp  = scaled($("sp" + i).value, 2);
+        mg    = pos(scaled($("w" + i).value, 3));
+        opBp  = pos(scaled($("op" + i).value, 2));
+        spBp  = pos(scaled($("sp" + i).value, 2));
         // ارزش طلا = وزن × نرخ × (عیار کالا ÷ عیار مبنای نرخ) — یک بار گرد می‌شود
         var pi = purity($("k" + i).value) || base;
         gold  = divRound(mg * rate * pi.n * base.d, K1000 * pi.d * base.n);
@@ -212,10 +215,10 @@
         tot   = gold + mk + stone + vat;
       }
 
-      set("g" + i,  used ? money(gold) : "");
-      set("mk" + i, used ? money(mk)   : "");
-      set("v" + i,  used ? money(vat)  : "");
-      set("t" + i,  used ? money(tot)  : "");
+      set("g" + i,  used ? money0(gold) : "");
+      set("mk" + i, used ? money0(mk)   : "");
+      set("v" + i,  used ? money0(vat)  : "");
+      set("t" + i,  used ? money0(tot)  : "");
 
       if (used){
         T.mg += mg; T.qty += qty; T.gold += gold; T.ojrat += ojrat;
@@ -230,25 +233,27 @@
       }
     }
 
+    var any = steps.length > 0;
+    var m = function(x){ return any ? money0(x) : ""; };
     set("tw",       weight(T.mg));
     set("tqty",     T.qty ? fa(T.qty) : "");
-    set("tgold",    money(T.gold));
-    set("tmk",      money(T.mk));
-    set("tstone",   money(T.stone));
-    set("tvat",     money(T.vat));
-    set("subtotal", money(T.tot));
+    set("tgold",    m(T.gold));
+    set("tmk",      m(T.mk));
+    set("tstone",   m(T.stone));
+    set("tvat",     m(T.vat));
+    set("subtotal", m(T.tot));
 
-    var disc = scaled($("disc").value, 0);
+    var disc = pos(scaled($("disc").value, 0));
     var net  = T.tot - disc;
     if (net < ZERO) net = ZERO;
     var pay  = net > ZERO ? divRound(net, K1000) * K1000 : ZERO;
     var rnd  = pay - net;
 
     set("round", T.tot > ZERO ? (rnd === ZERO ? "۰" : (rnd < ZERO ? "−" : "+") + money(rnd < ZERO ? -rnd : rnd)) : "");
-    set("payable", money(pay));
+    set("payable", any ? money0(pay) : "");
     set("words", words(pay));
 
-    var paid = scaled($("pos").value, 0) + scaled($("trf").value, 0);
+    var paid = pos(scaled($("pos").value, 0)) + pos(scaled($("trf").value, 0));
     var rem = pay - paid;
     if (rem < ZERO) rem = ZERO;
     set("rem", T.tot > ZERO ? money0(rem) : "");
@@ -288,7 +293,7 @@
     }
     h += '</div>';
 
-    var buyBp = scaled($("buyOjrat").value, 2);
+    var buyBp = pos(scaled($("buyOjrat").value, 2));
     var paidOjrat = divRound(T.goldJewel * buyBp, K10000);
     var diff = T.ojrat - paidOjrat;
     var netProfit = T.sood + diff;
@@ -376,7 +381,9 @@
     var sd = $("soodDef").value || "۷";
     for (var i = 1; i <= N; i++){
       if (i === 1 || rowUsed(i)){
-        if (!$("k" + i).value) $("k" + i).value = "۱۸";
+        // عیار پیش‌فرض هر ردیف = همان عیار مبنای نرخ، نه عدد ثابت ۱۸
+        if (!$("k" + i).value)
+          $("k" + i).value = faDigits(en($("baseAyar").value)) || "۱۸";
         if (!$("q" + i).value) $("q" + i).value = "۱";
         if (!$("sp" + i).value) $("sp" + i).value = sd;
       }
