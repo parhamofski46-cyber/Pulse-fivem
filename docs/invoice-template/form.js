@@ -434,7 +434,13 @@
   var PRICE_KEY = "jewelry-prices-v1";
   var JUMP = 0.15;                       // پرش بیش از ۱۵٪ بدون تأیید اعمال نمی‌شود
 
+  var GH_FEED = "https://raw.githubusercontent.com/parhamofski46-cyber/Pulse-fivem/" +
+                "main/docs/invoice-template/prices.json?v={T}";
   var PRESETS = {
+    github: { label: "فید خودتان روی GitHub", unit: "toman",
+      urls: [GH_FEED],
+      map: { rate:"rate", mes:"mes", ounce:"ounce", pc_emami:"pc_emami",
+             pc_bahar:"pc_bahar", pc_nim:"pc_nim", pc_rob:"pc_rob", pc_gerami:"pc_gerami" } },
     tgju: { label: "TGJU — بدون کلید", unit: "rial",
       urls: ["https://call1.tgju.org/ajax.json",
              "https://call3.tgju.org/ajax.json",
@@ -456,7 +462,7 @@
              pc_rob:"gold[name=ربع سکه].price", pc_gerami:"gold[name=سکه گرمی].price" } },
     custom: { label: "سفارشی", unit: "rial", urls: [], map: {} }
   };
-  var FALLBACK_ORDER = ["tgju"];         // منابع بدون کلید که خودکار امتحان می‌شوند
+  var FALLBACK_ORDER = ["github", "tgju"];         // منابع بدون کلید که خودکار امتحان می‌شوند
 
   function splitPath(path){              // "gold[name=طلای 18 عیار].price" -> اجزا
     var out = [], buf = "", depth = 0;
@@ -504,7 +510,17 @@
     return toman > 1e4 && toman < 1e13;
   }
 
-  function withKey(u){ return u.replace("{KEY}", encodeURIComponent($("lbKey").value.trim())); }
+  /* واسطه‌های عمومی CORS: وقتی منبع اجازه خواندن مستقیم از مرورگر را نمی‌دهد،
+     همان آدرس از این مسیرها خوانده می‌شود. فقط بعد از تلاش مستقیم امتحان می‌شوند. */
+  var PROXIES = [
+    function(u){ return "https://api.allorigins.win/raw?url=" + encodeURIComponent(u); },
+    function(u){ return "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u); },
+    function(u){ return "https://corsproxy.io/?url=" + encodeURIComponent(u); }
+  ];
+  function withKey(u){
+    return u.replace("{KEY}", encodeURIComponent($("lbKey").value.trim()))
+            .replace("{T}", String(Math.floor(Date.now() / 60000)));
+  }
   function cfg(){
     var pre = $("lbPreset").value, P = PRESETS[pre] || PRESETS.custom;
     var own = ($("lbUrl").value || "").trim();
@@ -551,7 +567,7 @@
       rv.value = faDigits(when.toLocaleDateString("fa-IR-u-nu-latn")) + " — " +
                  faDigits(("0" + when.getHours()).slice(-2) + ":" + ("0" + when.getMinutes()).slice(-2));
     status(srcName, when, fromCache, applied, locked);
-    renderFlagged();
+    renderFlagged(); renderAttempts();
     calc(); save();
     return applied;
   }
@@ -598,19 +614,33 @@
     try { return JSON.parse(localStorage.getItem(PRICE_KEY) || "null"); } catch (e) { return null; }
   }
 
-  var gen = 0;                 // هر تلاش تازه، تلاش قبلی را باطل می‌کند
+  var gen = 0, attempts = [];  // هر تلاش تازه، تلاش قبلی را باطل می‌کند
   function refresh(byUser){
     var mine = ++gen;
-    var c = cfg(), chain = [];
-    c.urls.forEach(function(u){ chain.push({ url: u, map: c.map, unit: c.unit, name: c.name }); });
+    var c = cfg(), chain = [], direct = [];
+    c.urls.forEach(function(u){ direct.push({ url: u, map: c.map, unit: c.unit, name: c.name }); });
     for (var i = 0; i < FALLBACK_ORDER.length; i++){
       var k = FALLBACK_ORDER[i], P = PRESETS[k];
       if (!P || k === c.preset) continue;
       (P.urls || []).forEach(function(u){
         if (u.indexOf("{KEY}") < 0)
-          chain.push({ url: u, map: P.map, unit: P.unit, name: P.label + " (پشتیبان)" });
+          direct.push({ url: withKey(u), map: P.map, unit: P.unit, name: P.label + " (پشتیبان)" });
       });
     }
+    chain = direct.slice();
+    if (!$("lbProxy") || $("lbProxy").checked){
+      var seen = {};
+      direct.forEach(function(d){
+        if (seen[d.name]) return;              // فقط یک آدرس از هر منبع را با واسطه امتحان کن
+        seen[d.name] = 1;
+        if (d.url.indexOf("raw.githubusercontent") >= 0) return;  // این یکی خودش CORS دارد
+        PROXIES.forEach(function(mk, pi){
+          chain.push({ url: mk(d.url), map: d.map, unit: d.unit,
+                       name: d.name + " (واسطه " + fa(pi + 1) + ")" });
+        });
+      });
+    }
+    attempts = [];
     if (!chain.length){ useCache(true); return; }
     if ($("lbStatus")){
       $("lbStatus").className = "lb-status";
@@ -623,10 +653,16 @@
       fetchJSON(s.url, 6000).then(function(json){
         if (mine !== gen) return;
         var vals = readVals(json, s.map, s.unit);
-        if (!vals) throw new Error("no usable fields");
+        if (!vals) throw new Error("پاسخ آمد ولی هیچ فیلدی با نگاشت جور نبود");
+        attempts.push({ name: s.name, ok: true, n: Object.keys(vals).length });
         saveCache(vals, s.name);
         applyVals(vals, s.name, new Date(), false);
-      }).catch(function(){ step(n + 1); });
+      }).catch(function(e){
+        attempts.push({ name: s.name, ok: false,
+                        err: (e && e.name === "AbortError") ? "زمان تمام شد"
+                             : (e && e.message) ? e.message : "اتصال/CORS" });
+        step(n + 1);
+      });
     })(0);
   }
   function useCache(explain){
@@ -634,10 +670,27 @@
     if (c && c.vals){ applyVals(c.vals, c.src, new Date(c.t), true); }
     else if ($("lbStatus")){
       $("lbStatus").className = "lb-status warn";
-      $("lbStatus").textContent = explain
-        ? "اتصال برقرار نشد — نرخ‌ها را دستی وارد کنید (راهنما: «تنظیم منبع»)"
-        : "نرخی ذخیره نشده — دستی وارد کنید";
+      $("lbStatus").textContent = explain ? failureHint() : "نرخی ذخیره نشده — دستی وارد کنید";
     }
+    renderAttempts();
+  }
+  function blockedHere(){
+    return location.protocol === "https:" && /claude\.(ai|com)/.test(location.hostname);
+  }
+  function failureHint(){
+    if (blockedHere())
+      return "در نسخه لینک، مرورگر هر اتصال بیرونی را مسدود می‌کند — فایل دانلودی را باز کنید یا دستی وارد کنید";
+    return "هیچ منبعی جواب نداد — «تنظیم منبع» ← «آزمایش اتصال» را بزنید تا علتش را ببینید";
+  }
+  function renderAttempts(){
+    var box = $("lbDiag");
+    if (!box) return;
+    if (!attempts.length){ box.hidden = true; box.innerHTML = ""; return; }
+    box.hidden = false;
+    box.innerHTML = "<b>گزارش تلاش‌ها:</b> " + attempts.map(function(a){
+      return '<span class="' + (a.ok ? "d-ok" : "d-no") + '">' + esc(a.name) + " — " +
+             (a.ok ? fa(a.n) + " نرخ" : esc(a.err)) + "</span>";
+    }).join(" · ");
   }
   function lockManual(el){
     if (el && PRICE_FIELDS.concat(["rvalid"]).indexOf(el.id) >= 0)
@@ -678,17 +731,14 @@
     $("lbCfgBtn").onclick = function(){ $("livecfg").hidden = !$("livecfg").hidden; };
     $("lbLock").onclick = window.releaseLocks;
     $("lbTest").onclick = function(){
-      var c = cfg(), out = $("lbTestOut");
-      out.textContent = "در حال آزمایش…";
-      if (!c.urls.length){ out.textContent = "آدرس خالی است"; return; }
-      fetchJSON(c.urls[0]).then(function(j){
-        var v = readVals(j, c.map, c.unit);
-        out.textContent = v ? "موفق — " + fa(Object.keys(v).length) + " نرخ خوانده شد"
-                            : "پاسخ گرفته شد ولی هیچ فیلدی با نگاشت جور نبود";
-      }).catch(function(e){
-        out.textContent = "ناموفق: " + (e && e.message ? e.message : "اتصال") +
-          " — اگر این صفحه از طریق لینک باز شده، مرورگر اتصال بیرونی را مسدود می‌کند؛ فایل دانلودی را باز کنید.";
-      });
+      $("lbTestOut").textContent = "در حال آزمایش همه منابع…" +
+        (blockedHere() ? " (توجه: این صفحه از طریق لینک باز شده و مرورگر اتصال بیرونی را مسدود می‌کند)" : "");
+      refresh(true);
+      setTimeout(function(){
+        var okAny = attempts.some(function(a){ return a.ok; });
+        $("lbTestOut").textContent = okAny ? "یک منبع جواب داد — گزارش کامل پایین نوار است"
+                                           : failureHint();
+      }, 30000);
     };
     var cached = loadCache();
     if (cached) applyVals(cached.vals, cached.src, new Date(cached.t), true);

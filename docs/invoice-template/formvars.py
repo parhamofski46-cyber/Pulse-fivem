@@ -115,13 +115,16 @@ TOOLBAR = """
   <button class="btn sm" id="lbNow" type="button">به‌روزرسانی</button>
   <label class="chk"><input type="checkbox" id="lbAuto" class="cfgf" checked><span>خودکار</span></label>
   <button class="btn sm lock" id="lbLock" type="button" hidden></button>
+  <label class="chk" title="اگر منبع اجازه خواندن مستقیم ندهد، از یک واسطه عمومی رد می‌شود"><input type="checkbox" id="lbProxy" class="cfgf" checked><span>واسطه در صورت نیاز</span></label>
   <button class="btn sm" id="lbCfgBtn" type="button">تنظیم منبع</button>
   <span class="lb-note">هر نرخی که دستی تایپ کنید قفل می‌شود و به‌روزرسانی خودکار آن را عوض نمی‌کند</span>
 </div>
 <div class="lb-flag noprint" id="lbFlag" hidden></div>
+<div class="lb-diag noprint" id="lbDiag" hidden></div>
 <div class="livecfg noprint" id="livecfg" hidden>
   <label>منبع
     <select id="lbPreset" class="cfgf">
+      <option value="github">فید خودتان روی GitHub — مطمئن‌ترین</option>
       <option value="tgju">TGJU — بدون کلید</option>
       <option value="navasan">نوسان — نیازمند کلید</option>
       <option value="brsapi">BrsApi — نیازمند کلید</option>

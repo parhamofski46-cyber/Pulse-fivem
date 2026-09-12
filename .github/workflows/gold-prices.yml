@@ -1,0 +1,38 @@
+name: نرخ روز طلا و سکه
+
+# زمان‌بندی فقط روی شاخه پیش‌فرض (main) اجرا می‌شود.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gold-prices
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: گرفتن نرخ‌ها
+        env:
+          NAVASAN_KEY: ${{ secrets.NAVASAN_KEY }}
+          BRSAPI_KEY: ${{ secrets.BRSAPI_KEY }}
+        run: python3 docs/invoice-template/fetch_prices.py
+
+      - name: ثبت تغییر
+        run: |
+          git config user.name  "gold-prices-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/invoice-template/prices.json
+          if git diff --staged --quiet; then
+            echo "نرخ تازه‌ای نبود."
+          else
+            git commit -m "نرخ روز: $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi

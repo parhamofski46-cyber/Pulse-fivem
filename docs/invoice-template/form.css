@@ -145,3 +145,11 @@ tr.coin .chip{visibility:hidden}
 .lb-actions{display:flex;align-items:center;gap:2.5mm;padding-top:4mm}
 .lb-testout{font-size:7.6pt;color:#9D917A;max-width:80mm;line-height:1.45}
 @media print{.livebar,.livecfg,.lb-flag{display:none!important}}
+
+.lb-diag{background:#1E1810;color:#8E8269;border-bottom:0.5pt solid #3A3126;
+  padding:1.3mm 5mm;font-family:'Vazirmatn',sans-serif;font-size:7.4pt;line-height:1.7}
+.lb-diag[hidden]{display:none}
+.lb-diag b{color:#9D917A}
+.lb-diag .d-ok{color:#7FB07A}
+.lb-diag .d-no{color:#A8836B}
+@media print{.lb-diag{display:none!important}}
