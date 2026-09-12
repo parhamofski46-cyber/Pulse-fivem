@@ -125,6 +125,21 @@
     return g.reverse().join(AND) + " تومان";
   }
 
+  /* ---------- coins ----------
+     وزن و عیار استاندارد سکه‌های بانک مرکزی؛ وزن به میلی‌گرم نگه داشته می‌شود. */
+  var COINS = {
+    emami:  { name: "تمام سکه امامی",    mg: 8136, ayar: "۹۰۰" },
+    bahar:  { name: "تمام بهار آزادی",   mg: 8136, ayar: "۹۰۰" },
+    nim:    { name: "نیم‌سکه",            mg: 4068, ayar: "۹۰۰" },
+    rob:    { name: "ربع‌سکه",            mg: 2034, ayar: "۹۰۰" },
+    gerami: { name: "سکه گرمی",           mg: 1017, ayar: "۹۰۰" }
+  };
+  function coinOf(i){
+    var el = $("ty" + i);
+    var v = el ? el.value : "";
+    return v && COINS[v] ? v : "";
+  }
+
   /* ---------- dom ---------- */
   var $ = function(id){ return document.getElementById(id); };
   function set(name, txt){
@@ -137,6 +152,9 @@
     });
   }
   function rowUsed(i){
+    var c = coinOf(i);
+    if (c) return (parseInt(en($("q" + i).value), 10) || 0) > 0 ||
+                  ($("d" + i).value || "").trim() !== "";
     return scaled($("w" + i).value, 3) > ZERO ||
            scaled($("st" + i).value, 0) > ZERO ||
            ($("d" + i).value || "").trim() !== "";
@@ -149,25 +167,50 @@
     var base  = purity($("baseAyar").value) || { n: BigInt(18000), d: K24000 };
     set("baseayar", ayarText($("baseAyar").value).replace(" عیار", "").replace(" هزارم", ""));
     var T = { mg: ZERO, qty: 0, gold: ZERO, ojrat: ZERO, sood: ZERO,
-              mk: ZERO, stone: ZERO, vat: ZERO, tot: ZERO };
+              mk: ZERO, stone: ZERO, vat: ZERO, tot: ZERO, coins: 0, goldJewel: ZERO };
     var steps = [];
 
     for (var i = 1; i <= N; i++){
-      var mg    = scaled($("w" + i).value, 3);
-      var opBp  = scaled($("op" + i).value, 2);
-      var spBp  = scaled($("sp" + i).value, 2);
+      var coin  = coinOf(i);
       var stone = scaled($("st" + i).value, 0);
       var qty   = parseInt(en($("q" + i).value), 10) || 0;
       var used  = rowUsed(i);
+      var row   = $("d" + i).closest("tr");
+      if (row) row.classList.toggle("coin", !!coin);
 
-      // ارزش طلا = وزن × نرخ × (عیار کالا ÷ عیار مبنای نرخ) — یک بار گرد می‌شود
-      var pi = purity($("k" + i).value) || base;
-      var gold = divRound(mg * rate * pi.n * base.d, K1000 * pi.d * base.n);
-      var ojrat = divRound(gold * opBp, K10000);
-      var sood  = divRound((gold + ojrat) * spBp, K10000);
-      var mk    = ojrat + sood;
-      var vat   = divRound(mk * vatBp, K10000);
-      var tot   = gold + mk + stone + vat;
+      var mg, gold, ojrat, sood, mk, vat, tot, unit = ZERO, opBp, spBp;
+
+      if (coin){
+        /* سکه: قیمت هر قطعه ضربدر تعداد؛ اجرت ساخت ندارد و سود فروشنده
+           به‌صورت درصدی روی ارزش سکه محاسبه و در «اجرت و کارمزد» ادغام می‌شود. */
+        var C = COINS[coin];
+        unit  = scaled($("pc_" + coin).value, 0);
+        var q = BigInt(qty);
+        mg    = BigInt(C.mg) * q;
+        gold  = unit * q;
+        opBp  = ZERO;
+        spBp  = scaled($("coinSood").value, 2);
+        ojrat = ZERO;
+        sood  = divRound(gold * spBp, K10000);
+        mk    = sood;
+        vat   = divRound(mk * vatBp, K10000);
+        tot   = gold + mk + stone + vat;
+        if ($("d" + i).value.trim() === "" && qty > 0) $("d" + i).value = C.name;
+        $("k" + i).value = C.ayar;
+        $("w" + i).value = weight(mg);
+      } else {
+        mg    = scaled($("w" + i).value, 3);
+        opBp  = scaled($("op" + i).value, 2);
+        spBp  = scaled($("sp" + i).value, 2);
+        // ارزش طلا = وزن × نرخ × (عیار کالا ÷ عیار مبنای نرخ) — یک بار گرد می‌شود
+        var pi = purity($("k" + i).value) || base;
+        gold  = divRound(mg * rate * pi.n * base.d, K1000 * pi.d * base.n);
+        ojrat = divRound(gold * opBp, K10000);
+        sood  = divRound((gold + ojrat) * spBp, K10000);
+        mk    = ojrat + sood;
+        vat   = divRound(mk * vatBp, K10000);
+        tot   = gold + mk + stone + vat;
+      }
 
       set("g" + i,  used ? money(gold) : "");
       set("mk" + i, used ? money(mk)   : "");
@@ -177,8 +220,11 @@
       if (used){
         T.mg += mg; T.qty += qty; T.gold += gold; T.ojrat += ojrat;
         T.sood += sood; T.mk += mk; T.stone += stone; T.vat += vat; T.tot += tot;
+        if (coin) T.coins++; else T.goldJewel += gold;
         steps.push({ i: i, name: ($("d" + i).value || "").trim(), mg: mg, rate: rate,
-                     ayar: $("k" + i).value, sameAyar: pi.n * base.d === base.n * pi.d,
+                     coin: coin, qty: qty, unit: unit,
+                     ayar: $("k" + i).value,
+                     sameAyar: coin ? true : (pi.n * base.d === base.n * pi.d),
                      opBp: opBp, spBp: spBp, vatBp: vatBp, gold: gold, ojrat: ojrat,
                      sood: sood, mk: mk, stone: stone, vat: vat, tot: tot });
       }
@@ -223,13 +269,18 @@
     for (var k = 0; k < steps.length; k++){
       var s = steps[k];
       h += '<div class="cp-row"><div class="cp-rh"><b>ردیف ' + fa(s.i) + '</b>' +
-           (s.name ? '<span>' + esc(s.name) + '</span>' : '') + '</div><table class="cp-t">' +
-        line("ارزش طلا", weight(s.mg) + " گرم × " + money(s.rate) +
-             (s.sameAyar ? "" : " × " + ayarRatio(s.ayar, $("baseAyar").value)),
-             money0(s.gold)) +
-        line("اجرت " + pct(s.opBp) + "٪", money0(s.gold) + " × " + pct(s.opBp) + "٪", money0(s.ojrat)) +
-        line("سود " + pct(s.spBp) + "٪", "(" + money0(s.gold) + " + " + money0(s.ojrat) + ") × " + pct(s.spBp) + "٪", money0(s.sood), "hot") +
-        line("اجرت و کارمزد", money0(s.ojrat) + " + " + money0(s.sood), money0(s.mk)) +
+           (s.name ? '<span>' + esc(s.name) + '</span>' : '') +
+           (s.coin ? '<span class="cp-tag">سکه</span>' : '') + '</div><table class="cp-t">' +
+        (s.coin
+          ? line("ارزش سکه", fa(s.qty) + " قطعه × " + money0(s.unit), money0(s.gold)) +
+            line("سود " + pct(s.spBp) + "٪", money0(s.gold) + " × " + pct(s.spBp) + "٪", money0(s.sood), "hot") +
+            line("وزن معادل", fa(s.qty) + " × " + weight(BigInt(COINS[s.coin].mg)) + " گرم", weight(s.mg) + " گرم")
+          : line("ارزش طلا", weight(s.mg) + " گرم × " + money(s.rate) +
+                 (s.sameAyar ? "" : " × " + ayarRatio(s.ayar, $("baseAyar").value)),
+                 money0(s.gold)) +
+            line("اجرت " + pct(s.opBp) + "٪", money0(s.gold) + " × " + pct(s.opBp) + "٪", money0(s.ojrat)) +
+            line("سود " + pct(s.spBp) + "٪", "(" + money0(s.gold) + " + " + money0(s.ojrat) + ") × " + pct(s.spBp) + "٪", money0(s.sood), "hot") +
+            line("اجرت و کارمزد", money0(s.ojrat) + " + " + money0(s.sood), money0(s.mk))) +
         (s.stone > ZERO ? line("سنگ و نگین", "مقطوع", money0(s.stone)) : "") +
         line("مالیات " + pct(s.vatBp) + "٪", money0(s.mk) + " × " + pct(s.vatBp) + "٪", money0(s.vat)) +
         line("مبلغ ردیف", money0(s.gold) + " + " + money0(s.mk) + (s.stone > ZERO ? " + " + money0(s.stone) : "") + " + " + money0(s.vat), money0(s.tot), "tot") +
@@ -238,12 +289,12 @@
     h += '</div>';
 
     var buyBp = scaled($("buyOjrat").value, 2);
-    var paidOjrat = divRound(T.gold * buyBp, K10000);
+    var paidOjrat = divRound(T.goldJewel * buyBp, K10000);
     var diff = T.ojrat - paidOjrat;
     var netProfit = T.sood + diff;
 
     h += '<div class="cp-sum"><div class="cp-sh">جمع‌بندی</div><table class="cp-t">' +
-      line("جمع ارزش طلا", weight(T.mg) + " گرم", money0(T.gold)) +
+      line(T.coins ? "جمع ارزش طلا و سکه" : "جمع ارزش طلا", weight(T.mg) + " گرم", money0(T.gold)) +
       line("جمع اجرت دریافتی", "", money0(T.ojrat)) +
       line("جمع سود شما", "", money0(T.sood), "hot") +
       (T.stone > ZERO ? line("جمع سنگ و نگین", "", money0(T.stone)) : "") +
@@ -258,7 +309,7 @@
 
     if (buyBp > ZERO){
       h += '<div class="cp-sh">سود خالص با احتساب اجرت خرید</div><table class="cp-t">' +
-        line("اجرت پرداختی شما " + pct(buyBp) + "٪", money0(T.gold) + " × " + pct(buyBp) + "٪", money0(paidOjrat)) +
+        line("اجرت پرداختی شما " + pct(buyBp) + "٪", money0(T.goldJewel) + " × " + pct(buyBp) + "٪", money0(paidOjrat)) +
         line("مابه‌التفاوت اجرت", money0(T.ojrat) + " − " + money0(paidOjrat),
              (diff < ZERO ? "− " : "") + money0(diff < ZERO ? -diff : diff)) +
         line("سود خالص شما", money0(T.sood) + (diff < ZERO ? " − " : " + ") + money0(diff < ZERO ? -diff : diff),
@@ -291,23 +342,33 @@
 
   /* ---------- storage ---------- */
   var KEY = "jewelry-invoice-v1";
-  function fields(){ return document.querySelectorAll("input.i,input.tin"); }
+  function fields(){
+    return document.querySelectorAll("input.i,input.tin,input[type=checkbox],select.tysel");
+  }
   function save(){
     var o = {}, f = fields();
-    for (var i = 0; i < f.length; i++) if (f[i].id) o[f[i].id] = f[i].value;
+    for (var i = 0; i < f.length; i++)
+      if (f[i].id) o[f[i].id] = f[i].type === "checkbox" ? (f[i].checked ? "1" : "") : f[i].value;
     try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
   }
   function load(){
     var o = null;
     try { o = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
     if (!o) return;
-    for (var k in o){ var el = $(k); if (el) el.value = o[k]; }
+    for (var k in o){
+      var el = $(k);
+      if (!el) continue;
+      if (el.type === "checkbox") el.checked = !!o[k]; else el.value = o[k];
+    }
   }
   window.newInvoice = function(){
     if (!confirm("تمام فیلدها پاک شود؟")) return;
     var f = fields();
     for (var i = 0; i < f.length; i++)
-      if (f[i].id !== "vatp" && f[i].id !== "soodDef" && f[i].id !== "buyOjrat") f[i].value = "";
+      if (f[i].type === "checkbox" || f[i].id === "vatp" || f[i].id === "soodDef" ||
+          f[i].id === "buyOjrat" || f[i].id === "coinSood" ||
+          f[i].id.indexOf("pc_") === 0) continue;
+      else f[i].value = "";
     try { localStorage.removeItem(KEY); } catch (e) {}
     defaults(); calc();
   };
@@ -336,6 +397,14 @@
     if (page) page.style.zoom = "";
   }
 
+  function applyToggles(){
+    var panel = $("calcpanel");
+    if (panel) panel.hidden = !$("showCalc").checked;
+    document.body.classList.toggle("coins", $("coinMode").checked);
+    if (!$("coinMode").checked)
+      for (var i = 1; i <= N; i++){ var t = $("ty" + i); if (t) t.value = ""; }
+  }
+
   document.addEventListener("DOMContentLoaded", function(){
     if (typeof BigInt === "undefined"){
       var w = document.createElement("div");
@@ -345,18 +414,26 @@
       document.body.insertBefore(w, document.body.firstChild);
       return;
     }
-    load(); fmtAll(); defaults(); calc();
+    load(); fmtAll(); applyToggles(); defaults(); calc();
 
     document.addEventListener("input", function(e){
       if (e.target.id === "soodDef")
         for (var i = 1; i <= N; i++) if (i === 1 || rowUsed(i)) $("sp" + i).value = e.target.value;
+      if (e.target.id === "showCalc" || e.target.id === "coinMode") applyToggles();
       defaults(); calc(); save();
+    });
+    document.addEventListener("change", function(e){
+      if (e.target && e.target.classList && e.target.classList.contains("tysel")){
+        defaults(); calc(); save();
+      }
     });
     document.addEventListener("blur", function(e){
       if (!e.target || !e.target.classList) return;
       if (e.target.classList.contains("i")){ fmt(e.target); calc(); save(); }
       else if (e.target.classList.contains("tin")){
-        e.target.value = faDigits(en(e.target.value)); calc(); save();
+        if (e.target.getAttribute("data-fmt")) fmt(e.target);
+        else e.target.value = faDigits(en(e.target.value));
+        calc(); save();
       }
     }, true);
     fitToScreen();

@@ -21,6 +21,14 @@ def inp(i, cls="", extra=""):
 def out(name, cls=""):
     return '<span class="o o-%s %s"></span>' % (name, cls)
 
+ROWTYPE = ('<span class="rowtype noprint"><select id="ty%d" class="tysel">'
+           '<option value="">طلا</option>%s</select></span>')
+
+COINS = [("emami", "تمام سکه امامی"), ("bahar", "تمام بهار آزادی"),
+         ("nim", "نیم‌سکه"), ("rob", "ربع‌سکه"), ("gerami", "سکه گرمی")]
+COIN_OPTIONS = "".join('<option value="%s">%s</option>' % (k, n) for k, n in COINS)
+
+
 def build(fa):
     rows = []
     for i in range(1, ROWS + 1):
@@ -38,7 +46,7 @@ def build(fa):
       <td class="m total">%s</td>
     </tr>""" % (
             fa(i),
-            inp("d%d" % i, "u dsc"),
+            inp("d%d" % i, "u dsc") + ROWTYPE % (i, COIN_OPTIONS),
             inp("k%d" % i, "u ctr", 'data-fmt="int"'),
             inp("q%d" % i, "u ctr", 'data-fmt="int"'),
             inp("w%d" % i, "u ctr", 'inputmode="decimal" data-fmt="dec"'),
@@ -91,14 +99,30 @@ TOOLBAR = """
   <span class="sep"></span>
   <label>سود پیش‌فرض <input id="soodDef" class="tin" value="۷" inputmode="decimal">٪</label>
   <label>مالیات <input id="vatp" class="tin" value="۱۰" inputmode="decimal">٪</label>
-  <label title="نرخ هر گرمی که در فاکتور وارد می‌کنید، مربوط به کدام عیار است">نرخ برای عیار <input id="baseAyar" class="tin" value="۱۸" inputmode="decimal"></label>
+  <label title="نرخ هر گرمی که وارد می‌کنید مربوط به کدام عیار است">نرخ برای عیار <input id="baseAyar" class="tin" value="۱۸" inputmode="decimal"></label>
   <label title="درصد اجرتی که خودتان موقع خرید کالا پرداخت کرده‌اید">اجرت خرید <input id="buyOjrat" class="tin" placeholder="—" inputmode="decimal">٪</label>
   <span class="sep"></span>
+  <label class="chk"><input type="checkbox" id="showCalc" checked><span>نمایش محاسبات</span></label>
+  <label class="chk"><input type="checkbox" id="coinMode"><span>فروش سکه</span></label>
+  <span class="sep"></span>
   <span class="profit">سود شما در این فاکتور: <b id="myprofit">۰</b> تومان</span>
-  <span class="note">این نوار و درصدها فقط برای شماست و چاپ نمی‌شود · ورودی‌ها خودکار در همین مرورگر ذخیره می‌شوند · هنگام چاپ: Margins=None و Background graphics روشن</span>
+  <span class="note">این نوار فقط برای شماست و چاپ نمی‌شود · ورودی‌ها خودکار ذخیره می‌شوند · هنگام چاپ: Margins=None و Background graphics روشن</span>
 </div>
-<details class="calcpanel noprint" open>
-  <summary>کاربرگ محاسبه <span>— ریاضی کامل هر ردیف، فقط برای شما · روی فاکتور چاپ نمی‌شود</span></summary>
+
+<div class="coinbar noprint">
+  <span class="cb-h">نرخ روز سکه</span>
+  <label>تمام امامی <input id="pc_emami" class="tin wide" inputmode="numeric" data-fmt="money"></label>
+  <label>تمام بهار آزادی <input id="pc_bahar" class="tin wide" inputmode="numeric" data-fmt="money"></label>
+  <label>نیم‌سکه <input id="pc_nim" class="tin wide" inputmode="numeric" data-fmt="money"></label>
+  <label>ربع‌سکه <input id="pc_rob" class="tin wide" inputmode="numeric" data-fmt="money"></label>
+  <label>سکه گرمی <input id="pc_gerami" class="tin wide" inputmode="numeric" data-fmt="money"></label>
+  <span class="sep"></span>
+  <label title="سود شما روی هر سکه — روی فاکتور به‌صورت «اجرت و کارمزد» نوشته می‌شود">سود روی سکه <input id="coinSood" class="tin" value="۳" inputmode="decimal">٪</label>
+  <span class="cb-note">در هر ردیف، زیر شرح کالا، نوع سکه را انتخاب کنید؛ وزن و عیار خودکار پر می‌شود</span>
+</div>
+
+<section class="calcpanel noprint" id="calcpanel">
+  <div class="cp-head">کاربرگ محاسبه <span>— ریاضی کامل هر ردیف، فقط برای شما · روی فاکتور چاپ نمی‌شود</span></div>
   <div class="cp-body" id="cpbody"></div>
-</details>
+</section>
 """
