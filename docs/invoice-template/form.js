@@ -434,11 +434,16 @@
   var PRICE_KEY = "jewelry-prices-v1";
   var JUMP = 0.15;                       // پرش بیش از ۱۵٪ بدون تأیید اعمال نمی‌شود
 
-  var GH_FEED = "https://raw.githubusercontent.com/parhamofski46-cyber/Pulse-fivem/" +
-                "main/docs/invoice-template/prices.json?v={T}";
+  var GH_USER = "parhamofski46-cyber", GH_REPO = "Pulse-fivem", GH_REF = "main";
+  var GH_DIR  = "docs/invoice-template";
+  var GH_FEED = "https://raw.githubusercontent.com/" + GH_USER + "/" + GH_REPO + "/" +
+                GH_REF + "/" + GH_DIR + "/prices.json?v={T}";
+  var SAME_ORIGIN_FEED = "./prices.json?v={T}";   // وقتی خود فرم روی GitHub Pages میزبانی شود
+  var JSDELIVR_JS = "https://cdn.jsdelivr.net/gh/" + GH_USER + "/" + GH_REPO + "@" + GH_REF +
+                    "/" + GH_DIR + "/prices.js";
   var PRESETS = {
     github: { label: "فید خودتان روی GitHub", unit: "toman",
-      urls: [GH_FEED],
+      urls: [SAME_ORIGIN_FEED, GH_FEED],
       map: { rate:"rate", mes:"mes", ounce:"ounce", pc_emami:"pc_emami",
              pc_bahar:"pc_bahar", pc_nim:"pc_nim", pc_rob:"pc_rob", pc_gerami:"pc_gerami" } },
     tgju: { label: "TGJU — بدون کلید", unit: "rial",
@@ -640,7 +645,7 @@
         });
       });
     }
-    attempts = [];
+    attempts = []; scriptTried = false;
     if (!chain.length){ useCache(true); return; }
     if ($("lbStatus")){
       $("lbStatus").className = "lb-status";
@@ -648,7 +653,10 @@
     }
     (function step(n){
       if (mine !== gen) return;                 // تلاش تازه‌تری شروع شده
-      if (n >= chain.length){ useCache(byUser); return; }
+      if (n >= chain.length){
+        tryScriptFeed(function(okFlag){ if (!okFlag && mine === gen) useCache(byUser); });
+        return;
+      }
       var s = chain[n];
       fetchJSON(s.url, 6000).then(function(json){
         if (mine !== gen) return;
@@ -665,6 +673,41 @@
       });
     })(0);
   }
+  /* بارگذاری فید از راه تگ script — این مسیر تابع CORS نیست و در صفحه‌هایی که
+     اتصال معمولی‌شان بسته است هم کار می‌کند. جدیدترین نیست (کش تا ۱۲ ساعت). */
+  var scriptTried = false;
+  function tryScriptFeed(after){
+    if (scriptTried){ after(false); return; }
+    scriptTried = true;
+    var el = document.createElement("script");
+    var done = false;
+    function finish(okFlag){
+      if (done) return;
+      done = true;
+      if (el.parentNode) el.parentNode.removeChild(el);
+      after(okFlag);
+    }
+    el.src = JSDELIVR_JS + "?v=" + Math.floor(Date.now() / 3600000);
+    el.onload = function(){
+      var d = window.__PRICES__;
+      if (!d){ attempts.push({ name: "فید از راه script", ok: false, err: "فایل خالی بود" });
+               finish(false); return; }
+      var vals = readVals(d, PRESETS.github.map, d.unit || "toman");
+      if (!vals){ attempts.push({ name: "فید از راه script", ok: false, err: "هنوز نرخی ندارد" });
+                  finish(false); return; }
+      attempts.push({ name: "فید از راه script (jsDelivr)", ok: true, n: Object.keys(vals).length });
+      saveCache(vals, "فید GitHub");
+      applyVals(vals, "فید GitHub (از راه script)", d.t ? new Date(d.t) : new Date(), false);
+      finish(true);
+    };
+    el.onerror = function(){
+      attempts.push({ name: "فید از راه script", ok: false, err: "مسدود یا در دسترس نبود" });
+      finish(false);
+    };
+    document.head.appendChild(el);
+    setTimeout(function(){ finish(false); }, 8000);
+  }
+
   function useCache(explain){
     var c = loadCache();
     if (c && c.vals){ applyVals(c.vals, c.src, new Date(c.t), true); }
@@ -674,13 +717,17 @@
     }
     renderAttempts();
   }
-  function blockedHere(){
-    return location.protocol === "https:" && /claude\.(ai|com)/.test(location.hostname);
+  function allBlocked(){        // همه تلاش‌ها با خطای شبکه رد شدند، نه با پاسخ سرور
+    return attempts.length > 2 && attempts.every(function(a){
+      return !a.ok && /Failed to fetch|NetworkError|Load failed|مسدود/.test(a.err || "");
+    });
   }
   function failureHint(){
-    if (blockedHere())
-      return "در نسخه لینک، مرورگر هر اتصال بیرونی را مسدود می‌کند — فایل دانلودی را باز کنید یا دستی وارد کنید";
-    return "هیچ منبعی جواب نداد — «تنظیم منبع» ← «آزمایش اتصال» را بزنید تا علتش را ببینید";
+    if (allBlocked())
+      return "مرورگر اجازه هیچ اتصال بیرونی نداد — این صفحه را از لینک باز کرده‌اید؟ " +
+             "نسخه میزبانی‌شده روی GitHub Pages یا فایل دانلودی این محدودیت را ندارد. " +
+             "تا آن موقع نرخ‌ها را دستی وارد کنید.";
+    return "هیچ منبعی جواب نداد — گزارش تلاش‌ها را ببینید؛ علت هر کدام آنجا نوشته شده";
   }
   function renderAttempts(){
     var box = $("lbDiag");
@@ -732,7 +779,7 @@
     $("lbLock").onclick = window.releaseLocks;
     $("lbTest").onclick = function(){
       $("lbTestOut").textContent = "در حال آزمایش همه منابع…" +
-        (blockedHere() ? " (توجه: این صفحه از طریق لینک باز شده و مرورگر اتصال بیرونی را مسدود می‌کند)" : "");
+        "";
       refresh(true);
       setTimeout(function(){
         var okAny = attempts.some(function(a){ return a.ok; });

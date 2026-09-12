@@ -118,7 +118,12 @@ def main():
             with open(target, "w", encoding="utf-8") as f:
                 json.dump(doc, f, ensure_ascii=False, indent=1)
                 f.write("\n")
-            print("wrote", target, "from", name, "fields:", len(vals))
+            # همان داده به شکل جاوااسکریپت: تگ <script> تابع CORS نیست و در
+            # صفحه‌هایی که اتصال معمولی‌شان بسته است هم بارگذاری می‌شود.
+            js = os.path.join(here, "prices.js")
+            with open(js, "w", encoding="utf-8") as f:
+                f.write("window.__PRICES__=" + json.dumps(doc, ensure_ascii=False) + ";\n")
+            print("wrote", target, "and", js, "from", name, "fields:", len(vals))
             return 0
     print("همه منابع ناموفق بودند؛ فایل قبلی دست‌نخورده ماند.", file=sys.stderr)
     return 1 if not os.path.exists(target) else 0
