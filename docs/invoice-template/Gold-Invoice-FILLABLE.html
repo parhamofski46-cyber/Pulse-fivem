@@ -324,6 +324,35 @@ tr.coin .chip{visibility:hidden}
 .cp-tag{background:#3A2F1C;color:#E5C267;border:0.4pt solid #55452A;border-radius:6pt;
   padding:.2mm 1.4mm;font-size:6.4pt;font-weight:700;margin-inline-start:auto}
 
+/* ---------- live price bar (screen only) ---------- */
+.livebar{background:#1B1610;color:#D8CCAE;border-bottom:0.5pt solid #3A3126;
+  padding:1.8mm 5mm;font-family:'Vazirmatn',sans-serif;font-size:8.4pt;
+  display:flex;align-items:center;gap:3mm;flex-wrap:wrap}
+.livebar .lb-h{color:#E5C267;font-weight:700}
+.lb-status{font-size:7.8pt;color:#9D917A}
+.lb-status.ok{color:#7FB07A}
+.lb-status.warn{color:#D79A72}
+.livebar .lb-note{color:#7E7460;font-size:7.4pt;margin-inline-start:auto;max-width:88mm;line-height:1.45}
+.btn.sm{font-size:7.8pt;padding:.9mm 2.4mm;border-radius:1.2mm}
+.btn.sm.lock{background:#3A2F1C;border-color:#55452A;color:#E5C267}
+.lb-flag{background:#3A2A1C;color:#F0DCC2;border-bottom:0.5pt solid #55452A;
+  padding:1.6mm 5mm;font-family:'Vazirmatn',sans-serif;font-size:8pt;
+  display:flex;align-items:center;gap:2.5mm;flex-wrap:wrap}
+.lb-flag b{color:#E5C267}
+.livecfg{background:#241D14;color:#A99C80;border-bottom:0.5pt solid #3A3126;
+  padding:2.4mm 5mm;font-family:'Vazirmatn',sans-serif;font-size:8pt;
+  display:flex;gap:3.5mm;flex-wrap:wrap;align-items:flex-start}
+.livecfg[hidden]{display:none}
+.livecfg label{display:flex;flex-direction:column;gap:1mm;color:#8E8269;font-size:7.6pt}
+.livecfg label.grow{flex:1 1 70mm;min-width:60mm}
+.livecfg select,.livecfg textarea,.livecfg input{font-family:'Vazirmatn',sans-serif;font-size:8pt;
+  background:#2B241B;color:#F3EAD4;border:0.5pt solid #4A4033;border-radius:1mm;padding:.9mm 1.6mm}
+.livecfg textarea{resize:vertical;line-height:1.5;direction:ltr;text-align:left}
+.tin.url{width:100%;direction:ltr;text-align:left}
+.lb-actions{display:flex;align-items:center;gap:2.5mm;padding-top:4mm}
+.lb-testout{font-size:7.6pt;color:#9D917A;max-width:80mm;line-height:1.45}
+@media print{.livebar,.livecfg,.lb-flag{display:none!important}}
+
 </style>
 </head>
 <body class="form">
@@ -342,6 +371,39 @@ tr.coin .chip{visibility:hidden}
   <span class="sep"></span>
   <span class="profit">سود شما در این فاکتور: <b id="myprofit">۰</b> تومان</span>
   <span class="note">این نوار فقط برای شماست و چاپ نمی‌شود · ورودی‌ها خودکار ذخیره می‌شوند · هنگام چاپ: Margins=None و Background graphics روشن</span>
+</div>
+
+<div class="livebar noprint">
+  <span class="lb-h">نرخ‌های زنده</span>
+  <span class="lb-status" id="lbStatus">آماده</span>
+  <button class="btn sm" id="lbNow" type="button">به‌روزرسانی</button>
+  <label class="chk"><input type="checkbox" id="lbAuto" class="cfgf" checked><span>خودکار</span></label>
+  <button class="btn sm lock" id="lbLock" type="button" hidden></button>
+  <button class="btn sm" id="lbCfgBtn" type="button">تنظیم منبع</button>
+  <span class="lb-note">هر نرخی که دستی تایپ کنید قفل می‌شود و به‌روزرسانی خودکار آن را عوض نمی‌کند</span>
+</div>
+<div class="lb-flag noprint" id="lbFlag" hidden></div>
+<div class="livecfg noprint" id="livecfg" hidden>
+  <label>منبع
+    <select id="lbPreset" class="cfgf">
+      <option value="tgju">TGJU — بدون کلید</option>
+      <option value="navasan">نوسان — نیازمند کلید</option>
+      <option value="brsapi">BrsApi — نیازمند کلید</option>
+      <option value="custom">سفارشی</option>
+    </select>
+  </label>
+  <label>کلید API <input id="lbKey" class="tin wide cfgf" placeholder="اگر منبع کلید می‌خواهد"></label>
+  <label>واحد منبع
+    <select id="lbUnit" class="cfgf"><option value="rial">ریال</option><option value="toman">تومان</option></select>
+  </label>
+  <label class="grow">آدرس (خالی بگذارید تا پیش‌فرض منبع استفاده شود)
+    <input id="lbUrl" class="tin url cfgf" spellcheck="false"></label>
+  <label class="grow">نگاشت فیلدها — JSON (خالی = نگاشت پیش‌فرض منبع)
+    <textarea id="lbMap" class="cfgf" rows="3" spellcheck="false"></textarea></label>
+  <div class="lb-actions">
+    <button class="btn sm" id="lbTest" type="button">آزمایش اتصال</button>
+    <span id="lbTestOut" class="lb-testout"></span>
+  </div>
 </div>
 
 <div class="coinbar noprint">
@@ -964,19 +1026,28 @@ tr.coin .chip{visibility:hidden}
   /* ---------- storage ---------- */
   var KEY = "jewelry-invoice-v1";
   function fields(){
-    return document.querySelectorAll("input.i,input.tin,input[type=checkbox],select.tysel");
+    return document.querySelectorAll("input.i,input.tin,input[type=checkbox],select.tysel,.cfgf");
   }
   function save(){
     var o = {}, f = fields();
     for (var i = 0; i < f.length; i++)
       if (f[i].id) o[f[i].id] = f[i].type === "checkbox" ? (f[i].checked ? "1" : "") : f[i].value;
+    var man = [];
+    for (var j = 0; j < PRICE_FIELDS.length; j++){
+      var pe = $(PRICE_FIELDS[j]);
+      if (pe && pe.getAttribute("data-manual") === "1") man.push(PRICE_FIELDS[j]);
+    }
+    o.__manual = man.join(",");
     try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
   }
   function load(){
     var o = null;
     try { o = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
     if (!o) return;
+    if (o.__manual)
+      o.__manual.split(",").forEach(function(id){ if ($(id)) $(id).setAttribute("data-manual","1"); });
     for (var k in o){
+      if (k === "__manual") continue;
       var el = $(k);
       if (!el) continue;
       if (el.type === "checkbox") el.checked = !!o[k]; else el.value = o[k];
@@ -985,11 +1056,13 @@ tr.coin .chip{visibility:hidden}
   window.newInvoice = function(){
     if (!confirm("تمام فیلدها پاک شود؟")) return;
     var f = fields();
-    for (var i = 0; i < f.length; i++)
-      if (f[i].type === "checkbox" || f[i].id === "vatp" || f[i].id === "soodDef" ||
-          f[i].id === "buyOjrat" || f[i].id === "coinSood" ||
-          f[i].id.indexOf("pc_") === 0) continue;
-      else f[i].value = "";
+    for (var i = 0; i < f.length; i++){
+      var id = f[i].id || "";
+      var keep = f[i].type === "checkbox" || id.indexOf("lb") === 0 ||
+                 id === "vatp" || id === "soodDef" || id === "buyOjrat" ||
+                 id === "coinSood" || id.indexOf("pc_") === 0;
+      if (!keep) f[i].value = "";
+    }
     try { localStorage.removeItem(KEY); } catch (e) {}
     defaults(); calc();
   };
@@ -1028,6 +1101,287 @@ tr.coin .chip{visibility:hidden}
       for (var i = 1; i <= N; i++){ var t = $("ty" + i); if (t) t.value = ""; }
   }
 
+
+  /* ================= نرخ‌های زنده =================
+     سه لایه که نگذارند فرم هیچ‌وقت بی‌نرخ بماند:
+       ۱) منبع انتخابی کاربر (با کلید خودش)
+       ۲) منابع پشتیبان بدون کلید، یکی‌یکی
+       ۳) آخرین نرخ موفق که در همین مرورگر ذخیره شده
+     هر فیلدی که دستی تایپ شود قفل می‌شود و به‌روزرسانی خودکار آن را عوض نمی‌کند. */
+  var PRICE_FIELDS = ["rate","mes","ounce","pc_emami","pc_bahar","pc_nim","pc_rob","pc_gerami"];
+  var PRICE_KEY = "jewelry-prices-v1";
+  var JUMP = 0.15;                       // پرش بیش از ۱۵٪ بدون تأیید اعمال نمی‌شود
+
+  var PRESETS = {
+    tgju: { label: "TGJU — بدون کلید", unit: "rial",
+      urls: ["https://call1.tgju.org/ajax.json",
+             "https://call3.tgju.org/ajax.json",
+             "https://call5.tgju.org/ajax.json",
+             "https://call2.tgju.org/ajax.json"],
+      map: { rate:"current.geram18.p", mes:"current.mesghal.p", ounce:"current.ons.p",
+             pc_emami:"current.sekee.p", pc_bahar:"current.sekeb.p",
+             pc_nim:"current.nim.p", pc_rob:"current.rob.p", pc_gerami:"current.gerami.p" } },
+    navasan: { label: "نوسان — نیازمند کلید", unit: "rial",
+      urls: ["https://api.navasan.tech/latest/?api_key={KEY}"],
+      map: { rate:"18ayar.value", mes:"mesghal.value", ounce:"ons.value",
+             pc_emami:"sekee.value", pc_bahar:"sekeb.value",
+             pc_nim:"nim.value", pc_rob:"rob.value", pc_gerami:"gerami.value" } },
+    brsapi: { label: "BrsApi — نیازمند کلید", unit: "toman",
+      urls: ["https://brsapi.ir/Api/Market/Gold_Currency.php?key={KEY}"],
+      map: { rate:"gold[name=طلای 18 عیار].price", mes:"gold[name=مثقال طلا].price",
+             ounce:"gold[name=انس طلا].price", pc_emami:"gold[name=سکه امامی].price",
+             pc_bahar:"gold[name=سکه بهار آزادی].price", pc_nim:"gold[name=نیم سکه].price",
+             pc_rob:"gold[name=ربع سکه].price", pc_gerami:"gold[name=سکه گرمی].price" } },
+    custom: { label: "سفارشی", unit: "rial", urls: [], map: {} }
+  };
+  var FALLBACK_ORDER = ["tgju"];         // منابع بدون کلید که خودکار امتحان می‌شوند
+
+  function splitPath(path){              // "gold[name=طلای 18 عیار].price" -> اجزا
+    var out = [], buf = "", depth = 0;
+    for (var i = 0; i < path.length; i++){
+      var c = path[i];
+      if (c === "[") depth++;
+      if (c === "]") depth--;
+      if (c === "." && depth === 0){ out.push(buf); buf = ""; }
+      else buf += c;
+    }
+    if (buf) out.push(buf);
+    return out;
+  }
+  function dig(obj, path){
+    if (!path) return undefined;
+    var parts = splitPath(path), cur = obj;
+    for (var i = 0; i < parts.length && cur != null; i++){
+      var m = parts[i].match(/^([^\[]*)\[(.+)\]$/);
+      if (!m){ cur = cur[parts[i]]; continue; }
+      if (m[1]) cur = cur[m[1]];
+      if (cur == null) return undefined;
+      var sel = m[2];
+      if (/^\d+$/.test(sel)) cur = cur[+sel];
+      else {
+        var eq = sel.indexOf("="), k = sel.slice(0, eq), v = sel.slice(eq + 1).trim();
+        cur = (cur && cur.length != null)
+          ? Array.prototype.filter.call(cur, function(o){
+              return o && String(o[k]).replace(/\s+/g, " ").trim() === v;
+            })[0]
+          : undefined;
+      }
+    }
+    return cur;
+  }
+  function toNumber(v){                  // "۱۲۳,۴۵۶" یا "123456.7" یا عدد
+    if (v == null) return 0;
+    var t = String(v).replace(/[۰-۹]/g, function(d){ return "۰۱۲۳۴۵۶۷۸۹".indexOf(d); })
+                     .replace(/[^\d.]/g, "");
+    var x = parseFloat(t);
+    return isFinite(x) && x > 0 ? x : 0;
+  }
+  function sane(id, toman){              // مرز عقل: جلوی عدد پرت را می‌گیرد
+    if (!(toman > 0)) return false;
+    if (id === "ounce") return toman < 1e7;
+    return toman > 1e4 && toman < 1e13;
+  }
+
+  function withKey(u){ return u.replace("{KEY}", encodeURIComponent($("lbKey").value.trim())); }
+  function cfg(){
+    var pre = $("lbPreset").value, P = PRESETS[pre] || PRESETS.custom;
+    var own = ($("lbUrl").value || "").trim();
+    var urls = (own ? [own] : (P.urls || [])).map(withKey);
+    var map = P.map;
+    var raw = ($("lbMap").value || "").trim();
+    if (raw) { try { map = JSON.parse(raw); } catch (e) {} }
+    return { name: P.label, urls: urls, unit: $("lbUnit").value, map: map, preset: pre };
+  }
+  function fetchJSON(url, ms){
+    var ctl = ("AbortController" in window) ? new AbortController() : null;
+    var t = setTimeout(function(){ if (ctl) ctl.abort(); }, ms || 9000);
+    return fetch(url, { signal: ctl ? ctl.signal : undefined, cache: "no-store",
+                        credentials: "omit", mode: "cors" })
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(j){ clearTimeout(t); return j; },
+            function(e){ clearTimeout(t); throw e; });
+  }
+  function readVals(json, map, unit){
+    var out = {}, hits = 0, div = unit === "rial" ? 10 : 1;
+    for (var i = 0; i < PRICE_FIELDS.length; i++){
+      var id = PRICE_FIELDS[i], raw = toNumber(dig(json, map[id]));
+      if (!raw) continue;
+      var v = Math.round(id === "ounce" ? raw : raw / div);   // انس همیشه دلاری است
+      if (sane(id, v)) { out[id] = v; hits++; }
+    }
+    return hits ? out : null;
+  }
+
+  var lastFlagged = null;
+  function applyVals(vals, srcName, when, fromCache){
+    var applied = 0, locked = 0, flagged = {};
+    for (var i = 0; i < PRICE_FIELDS.length; i++){
+      var id = PRICE_FIELDS[i], v = vals[id], el = $(id);
+      if (!v || !el) continue;
+      if (el.getAttribute("data-manual") === "1"){ locked++; continue; }
+      var prev = toNumber(el.value);
+      if (prev > 0 && Math.abs(v - prev) / prev > JUMP){ flagged[id] = v; continue; }
+      el.value = fa(grp(v)); applied++;
+    }
+    lastFlagged = Object.keys(flagged).length ? { vals: flagged, src: srcName } : null;
+    var rv = $("rvalid");
+    if (rv && rv.getAttribute("data-manual") !== "1" && applied)
+      rv.value = faDigits(when.toLocaleDateString("fa-IR-u-nu-latn")) + " — " +
+                 faDigits(("0" + when.getHours()).slice(-2) + ":" + ("0" + when.getMinutes()).slice(-2));
+    status(srcName, when, fromCache, applied, locked);
+    renderFlagged();
+    calc(); save();
+    return applied;
+  }
+  function renderFlagged(){
+    var box = $("lbFlag");
+    if (!box) return;
+    if (!lastFlagged){ box.hidden = true; box.innerHTML = ""; return; }
+    var names = { rate:"هر گرم", mes:"مثقال", ounce:"انس", pc_emami:"تمام امامی",
+                  pc_bahar:"بهار آزادی", pc_nim:"نیم", pc_rob:"ربع", pc_gerami:"گرمی" };
+    var parts = [];
+    for (var id in lastFlagged.vals) parts.push(names[id] + " → " + fa(grp(lastFlagged.vals[id])));
+    box.hidden = false;
+    box.innerHTML = '<b>تفاوت زیاد با نرخ فعلی:</b> ' + parts.join(" · ") +
+                    ' <button class="btn sm" id="lbOk">اعمال</button>' +
+                    '<button class="btn sm" id="lbNo">رد</button>';
+    $("lbOk").onclick = function(){
+      for (var id in lastFlagged.vals) if ($(id)) $(id).value = fa(grp(lastFlagged.vals[id]));
+      lastFlagged = null; renderFlagged(); calc(); save();
+    };
+    $("lbNo").onclick = function(){ lastFlagged = null; renderFlagged(); };
+  }
+  function ago(d){
+    var m = Math.round((Date.now() - d.getTime()) / 60000);
+    if (m < 1) return "همین الان";
+    if (m < 60) return fa(m) + " دقیقه پیش";
+    var h = Math.round(m / 60);
+    if (h < 24) return fa(h) + " ساعت پیش";
+    return fa(Math.round(h / 24)) + " روز پیش";
+  }
+  function status(src, when, fromCache, applied, locked){
+    var el = $("lbStatus");
+    if (!el) return;
+    var stale = (Date.now() - when.getTime()) > 6 * 3600e3;
+    el.className = "lb-status" + (fromCache || stale ? " warn" : " ok");
+    el.textContent = (fromCache ? "آخرین نرخ ذخیره‌شده" : "به‌روز از " + src) +
+      " · " + ago(when) + (applied ? " · " + fa(applied) + " نرخ پر شد" : "") +
+      (locked ? " · " + fa(locked) + " فیلد دستی دست‌نخورده ماند" : "");
+  }
+  function saveCache(vals, src){
+    try { localStorage.setItem(PRICE_KEY, JSON.stringify({ t: Date.now(), src: src, vals: vals })); }
+    catch (e) {}
+  }
+  function loadCache(){
+    try { return JSON.parse(localStorage.getItem(PRICE_KEY) || "null"); } catch (e) { return null; }
+  }
+
+  var gen = 0;                 // هر تلاش تازه، تلاش قبلی را باطل می‌کند
+  function refresh(byUser){
+    var mine = ++gen;
+    var c = cfg(), chain = [];
+    c.urls.forEach(function(u){ chain.push({ url: u, map: c.map, unit: c.unit, name: c.name }); });
+    for (var i = 0; i < FALLBACK_ORDER.length; i++){
+      var k = FALLBACK_ORDER[i], P = PRESETS[k];
+      if (!P || k === c.preset) continue;
+      (P.urls || []).forEach(function(u){
+        if (u.indexOf("{KEY}") < 0)
+          chain.push({ url: u, map: P.map, unit: P.unit, name: P.label + " (پشتیبان)" });
+      });
+    }
+    if (!chain.length){ useCache(true); return; }
+    if ($("lbStatus")){
+      $("lbStatus").className = "lb-status";
+      $("lbStatus").textContent = "در حال گرفتن نرخ…";
+    }
+    (function step(n){
+      if (mine !== gen) return;                 // تلاش تازه‌تری شروع شده
+      if (n >= chain.length){ useCache(byUser); return; }
+      var s = chain[n];
+      fetchJSON(s.url, 6000).then(function(json){
+        if (mine !== gen) return;
+        var vals = readVals(json, s.map, s.unit);
+        if (!vals) throw new Error("no usable fields");
+        saveCache(vals, s.name);
+        applyVals(vals, s.name, new Date(), false);
+      }).catch(function(){ step(n + 1); });
+    })(0);
+  }
+  function useCache(explain){
+    var c = loadCache();
+    if (c && c.vals){ applyVals(c.vals, c.src, new Date(c.t), true); }
+    else if ($("lbStatus")){
+      $("lbStatus").className = "lb-status warn";
+      $("lbStatus").textContent = explain
+        ? "اتصال برقرار نشد — نرخ‌ها را دستی وارد کنید (راهنما: «تنظیم منبع»)"
+        : "نرخی ذخیره نشده — دستی وارد کنید";
+    }
+  }
+  function lockManual(el){
+    if (el && PRICE_FIELDS.concat(["rvalid"]).indexOf(el.id) >= 0)
+      el.setAttribute("data-manual", "1");
+    updateLockBadge();
+  }
+  function updateLockBadge(){
+    var n = 0;
+    for (var i = 0; i < PRICE_FIELDS.length; i++)
+      if ($(PRICE_FIELDS[i]) && $(PRICE_FIELDS[i]).getAttribute("data-manual") === "1") n++;
+    var b = $("lbLock");
+    if (b){ b.hidden = !n; b.textContent = "🔒 " + fa(n) + " فیلد دستی — آزاد کردن"; }
+  }
+  window.releaseLocks = function(){
+    PRICE_FIELDS.concat(["rvalid"]).forEach(function(id){
+      if ($(id)) $(id).removeAttribute("data-manual");
+    });
+    updateLockBadge(); refresh(true);
+  };
+  function initLive(){
+    var sel = $("lbPreset");
+    if (!sel.options.length){
+      for (var k in PRESETS){
+        var o = document.createElement("option");
+        o.value = k; o.textContent = PRESETS[k].label; sel.appendChild(o);
+      }
+    }
+    if (!sel.value) sel.value = "tgju";
+    function syncPreset(){
+      var P = PRESETS[sel.value] || PRESETS.custom;
+      $("lbUrl").placeholder = (P.urls && P.urls[0]) || "https://…";
+      $("lbUnit").value = P.unit;
+      $("lbMap").placeholder = JSON.stringify(P.map, null, 1);
+    }
+    sel.addEventListener("change", function(){ syncPreset(); save(); });
+    syncPreset();
+    $("lbNow").onclick = function(){ refresh(true); };
+    $("lbCfgBtn").onclick = function(){ $("livecfg").hidden = !$("livecfg").hidden; };
+    $("lbLock").onclick = window.releaseLocks;
+    $("lbTest").onclick = function(){
+      var c = cfg(), out = $("lbTestOut");
+      out.textContent = "در حال آزمایش…";
+      if (!c.urls.length){ out.textContent = "آدرس خالی است"; return; }
+      fetchJSON(c.urls[0]).then(function(j){
+        var v = readVals(j, c.map, c.unit);
+        out.textContent = v ? "موفق — " + fa(Object.keys(v).length) + " نرخ خوانده شد"
+                            : "پاسخ گرفته شد ولی هیچ فیلدی با نگاشت جور نبود";
+      }).catch(function(e){
+        out.textContent = "ناموفق: " + (e && e.message ? e.message : "اتصال") +
+          " — اگر این صفحه از طریق لینک باز شده، مرورگر اتصال بیرونی را مسدود می‌کند؛ فایل دانلودی را باز کنید.";
+      });
+    };
+    var cached = loadCache();
+    if (cached) applyVals(cached.vals, cached.src, new Date(cached.t), true);
+    if ($("lbAuto").checked) refresh(false);
+    setInterval(function(){ if ($("lbAuto").checked) refresh(false); }, 5 * 60000);
+    window.addEventListener("online", function(){ if ($("lbAuto").checked) refresh(false); });
+    document.addEventListener("visibilitychange", function(){
+      if (!document.hidden && $("lbAuto").checked){
+        var c2 = loadCache();
+        if (!c2 || Date.now() - c2.t > 10 * 60000) refresh(false);
+      }
+    });
+    updateLockBadge();
+  }
+
   document.addEventListener("DOMContentLoaded", function(){
     if (typeof BigInt === "undefined"){
       var w = document.createElement("div");
@@ -1038,10 +1392,12 @@ tr.coin .chip{visibility:hidden}
       return;
     }
     load(); fmtAll(); applyToggles(); defaults(); calc();
+    try { initLive(); } catch (e) {}
 
     document.addEventListener("input", function(e){
       if (e.target.id === "soodDef")
         for (var i = 1; i <= N; i++) if (i === 1 || rowUsed(i)) $("sp" + i).value = e.target.value;
+      if (e.target.isTrusted) lockManual(e.target);
       if (e.target.id === "showCalc" || e.target.id === "coinMode") applyToggles();
       defaults(); calc(); save();
     });

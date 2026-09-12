@@ -109,6 +109,39 @@ TOOLBAR = """
   <span class="note">این نوار فقط برای شماست و چاپ نمی‌شود · ورودی‌ها خودکار ذخیره می‌شوند · هنگام چاپ: Margins=None و Background graphics روشن</span>
 </div>
 
+<div class="livebar noprint">
+  <span class="lb-h">نرخ‌های زنده</span>
+  <span class="lb-status" id="lbStatus">آماده</span>
+  <button class="btn sm" id="lbNow" type="button">به‌روزرسانی</button>
+  <label class="chk"><input type="checkbox" id="lbAuto" class="cfgf" checked><span>خودکار</span></label>
+  <button class="btn sm lock" id="lbLock" type="button" hidden></button>
+  <button class="btn sm" id="lbCfgBtn" type="button">تنظیم منبع</button>
+  <span class="lb-note">هر نرخی که دستی تایپ کنید قفل می‌شود و به‌روزرسانی خودکار آن را عوض نمی‌کند</span>
+</div>
+<div class="lb-flag noprint" id="lbFlag" hidden></div>
+<div class="livecfg noprint" id="livecfg" hidden>
+  <label>منبع
+    <select id="lbPreset" class="cfgf">
+      <option value="tgju">TGJU — بدون کلید</option>
+      <option value="navasan">نوسان — نیازمند کلید</option>
+      <option value="brsapi">BrsApi — نیازمند کلید</option>
+      <option value="custom">سفارشی</option>
+    </select>
+  </label>
+  <label>کلید API <input id="lbKey" class="tin wide cfgf" placeholder="اگر منبع کلید می‌خواهد"></label>
+  <label>واحد منبع
+    <select id="lbUnit" class="cfgf"><option value="rial">ریال</option><option value="toman">تومان</option></select>
+  </label>
+  <label class="grow">آدرس (خالی بگذارید تا پیش‌فرض منبع استفاده شود)
+    <input id="lbUrl" class="tin url cfgf" spellcheck="false"></label>
+  <label class="grow">نگاشت فیلدها — JSON (خالی = نگاشت پیش‌فرض منبع)
+    <textarea id="lbMap" class="cfgf" rows="3" spellcheck="false"></textarea></label>
+  <div class="lb-actions">
+    <button class="btn sm" id="lbTest" type="button">آزمایش اتصال</button>
+    <span id="lbTestOut" class="lb-testout"></span>
+  </div>
+</div>
+
 <div class="coinbar noprint">
   <span class="cb-h">نرخ روز سکه</span>
   <label>تمام امامی <input id="pc_emami" class="tin wide" inputmode="numeric" data-fmt="money"></label>
