@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>فاکتور فروش طلا و جواهر</title>
+<style>
+{{FONTS}}
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1B1713; --ink2:#4A4038; --ink3:#7C7066;
+  --gold:#A07C36; --gold2:#C6A455; --gold3:#E8DCC0;
+  --line:#DED4C0; --line2:#EDE6D8;
+  --bg:#FFFDF9; --panel:#FAF6EE; --dark:#1E1913;
+}
+@page{size:A4;margin:0}
+html,body{background:#fff}
+body{
+  font-family:'Vazirmatn',sans-serif; color:var(--ink);
+  font-size:8pt; line-height:1.55; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; text-rendering:geometricPrecision;
+}
+.page{width:210mm;height:297mm;position:relative;overflow:hidden;background:var(--bg);padding:8.5mm}
+.frame{position:absolute;inset:6.5mm;border:0.5pt solid var(--gold);pointer-events:none}
+.frame::before{content:"";position:absolute;inset:1.6mm;border:0.4pt solid var(--gold3)}
+.corner{position:absolute;width:7mm;height:7mm;pointer-events:none}
+.corner::before,.corner::after{content:"";position:absolute;background:var(--gold)}
+.corner::before{width:7mm;height:0.9pt;top:0;right:0}
+.corner::after{width:0.9pt;height:7mm;top:0;right:0}
+.c-tr{top:6.5mm;right:6.5mm} .c-tl{top:6.5mm;left:6.5mm;transform:scaleX(-1)}
+.c-br{bottom:6.5mm;right:6.5mm;transform:scaleY(-1)} .c-bl{bottom:6.5mm;left:6.5mm;transform:scale(-1,-1)}
+.watermark{position:absolute;left:50%;top:52%;width:96mm;height:96mm;
+  transform:translate(-50%,-50%) rotate(45deg);border:1.6pt solid var(--gold);opacity:.030;pointer-events:none}
+.watermark::before{content:"";position:absolute;inset:9mm;border:0.9pt solid var(--gold)}
+.dia{display:inline-block;width:2mm;height:2mm;border:0.6pt solid var(--gold);transform:rotate(45deg)}
+.dia.f{background:var(--gold2);border-color:var(--gold2)}
+.inner{position:relative;padding:3mm 5mm 0}
+
+/* header */
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm}
+.brand{display:flex;gap:4mm;align-items:center;flex:1}
+.medallion{width:17mm;height:17mm;border:0.7pt solid var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;position:relative;flex:0 0 auto;
+  background:linear-gradient(145deg,#FFFDF7,#F4EDDD)}
+.medallion::after{content:"";position:absolute;inset:1.1mm;border:0.4pt solid var(--gold3);border-radius:50%}
+.medallion .dia{width:3.6mm;height:3.6mm}
+.brand-lines{padding-top:1mm}
+.brand-hint{font-size:5.6pt;color:#B9AE9C;letter-spacing:.4px;margin-bottom:1.2mm}
+.dot-line{border-bottom:0.5pt dotted #C9BCA5;height:4.1mm;margin-bottom:1.1mm;position:relative}
+.dot-line b{position:absolute;right:0;top:0;font-weight:500;font-size:6.2pt;color:#9A8E7C}
+.dot-line.w1{width:62mm}.dot-line.w2{width:74mm}
+.titlebox{text-align:left;flex:0 0 auto}
+.eyebrow{font-family:'Cormorant',serif;font-weight:500;font-size:8pt;letter-spacing:3.4px;
+  color:var(--gold);text-transform:uppercase}
+.title{font-size:15.5pt;font-weight:800;letter-spacing:-.3px;margin:.6mm 0 .8mm}
+.title small{font-weight:400;font-size:9pt;color:var(--ink3)}
+.rule{height:2pt;width:100%;background:linear-gradient(90deg,transparent,var(--gold2),var(--gold));border-radius:2pt}
+
+/* meta */
+.metabar{display:grid;grid-template-columns:repeat(4,1fr);margin-top:3.6mm;
+  border:0.5pt solid var(--line);background:var(--panel);border-radius:1.2mm;overflow:hidden}
+.metabar div{padding:1.3mm 3mm;border-left:0.5pt solid var(--line2)}
+.metabar div:last-child{border-left:0}
+.metabar .k{font-size:5.9pt;color:var(--ink3);letter-spacing:.2px}
+.metabar .v{font-size:8.6pt;font-weight:700;margin-top:.3mm;min-height:3.8mm}
+
+/* parties */
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-top:3mm}
+.card{border:0.5pt solid var(--line);border-radius:1.2mm;padding:1.7mm 3mm 1.8mm;background:#fff}
+.card-h{display:flex;align-items:center;gap:1.6mm;margin-bottom:2mm}
+.card-h span{font-size:7.2pt;font-weight:700}
+.card-h em{font-family:'Cormorant',serif;font-style:normal;font-size:6.4pt;color:var(--gold);
+  letter-spacing:1.6px;text-transform:uppercase;margin-inline-start:auto}
+.f{display:flex;gap:1.5mm;align-items:baseline;margin-bottom:.55mm}
+.f .lbl{font-size:6.3pt;color:var(--ink3);flex:0 0 21mm}
+.f .val{font-size:7.4pt;font-weight:600;flex:1;border-bottom:0.4pt dotted #D6CAB3;min-height:3.4mm}
+.f2{display:flex;gap:3mm}
+.f2>.f{flex:1}
+.f2>.f .lbl{flex:0 0 auto}
+
+/* rate strip */
+.rates{display:grid;grid-template-columns:auto repeat(4,1fr);margin-top:3mm;
+  border:0.5pt solid var(--gold);border-radius:1.2mm;overflow:hidden;background:#FCF8EF}
+.rates .head{background:var(--dark);color:var(--gold2);display:flex;align-items:center;
+  padding:0 3.5mm;font-size:6.8pt;font-weight:700;gap:1.8mm}
+.rates .cell{padding:1.2mm 3mm;border-left:0.5pt solid var(--gold3)}
+.rates .cell:last-child{border-left:0}
+.rates .k{font-size:5.9pt;color:#8C7C5E}
+.rates .v{font-size:8.2pt;font-weight:700;min-height:3.6mm}
+.rates .v i{font-style:normal;font-size:5.9pt;font-weight:500;color:var(--ink3)}
+
+/* items */
+table{width:100%;border-collapse:collapse;margin-top:2.6mm;table-layout:fixed}
+thead th{background:var(--dark);color:#EBDFC2;font-size:6.3pt;font-weight:600;
+  padding:1.8mm .6mm;text-align:center;line-height:1.25;border-left:0.4pt solid #3A3226}
+thead th:last-child{border-left:0}
+thead th em{display:block;font-family:'Cormorant',serif;font-style:normal;font-size:5.1pt;
+  color:#A08C5E;letter-spacing:.9px;text-transform:uppercase;margin-top:.2mm}
+tbody td{padding:.8mm .6mm;border-bottom:0.4pt solid var(--line2);vertical-align:middle;font-size:7.1pt}
+tbody tr:nth-child(even){background:#FBF8F1}
+tbody tr.blank td,tbody tr.frow td{height:{{ROWH}}}
+td.c{text-align:center}
+td.m{text-align:center;font-size:6.9pt;font-weight:600;white-space:nowrap}
+td.m.total{font-weight:800;font-size:7.4pt;color:#141009}
+td.num{font-weight:600}
+td.strong{font-weight:800;font-size:7.5pt}
+td.desc{text-align:right;padding-right:2mm}
+.d-name{font-size:7.2pt;font-weight:700;line-height:1.3}
+.d-spec{font-size:5.6pt;color:var(--ink3);line-height:1.4;margin-top:.15mm}
+.d-code{font-size:5.4pt;color:var(--gold);letter-spacing:.2px;white-space:nowrap}
+.chip{display:block;background:#F1E8D3;color:#7A6428;border-radius:6pt;
+  padding:.1mm 1.1mm;font-size:5.4pt;font-weight:700;margin:.5mm auto 0;width:fit-content}
+tfoot td{background:var(--panel);border-top:0.8pt solid var(--gold);font-weight:800;
+  font-size:7pt;padding:1.8mm .6mm;text-align:center;white-space:nowrap;min-height:5mm}
+tfoot td.lbl{text-align:right;padding-right:2mm;letter-spacing:.2px}
+
+/* bottom */
+.bottom{display:grid;grid-template-columns:1fr 74mm;gap:4mm;margin-top:3mm;align-items:start}
+.words{border:0.5pt solid var(--gold);background:#FCF8EF;border-radius:1.2mm;
+  padding:1.7mm 3.2mm;display:flex;gap:2.5mm;align-items:baseline}
+.words .k{font-size:6.4pt;color:var(--ink3);flex:0 0 auto;white-space:nowrap}
+.words .v{font-size:8.2pt;font-weight:700;line-height:1.5;flex:1;min-height:4mm}
+.sub2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-top:2.6mm}
+.pay{border:0.5pt solid var(--line);border-radius:1.2mm;overflow:hidden;background:#fff}
+.pay-h{background:var(--panel);padding:1.3mm 3mm;font-size:6.8pt;font-weight:700;
+  border-bottom:0.5pt solid var(--line);display:flex;gap:1.8mm;align-items:center}
+.pay-b{padding:.2mm 0}
+.pc{display:flex;justify-content:space-between;align-items:baseline;gap:1.5mm;
+  padding:.85mm 2.6mm;border-bottom:0.4pt solid var(--line2);min-height:4.1mm}
+.pc:last-child{border-bottom:0}
+.pc .k{font-size:6.2pt;color:var(--ink2);white-space:nowrap}
+.pc .v{font-size:6.8pt;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.notes{border:0.5pt solid var(--line);border-radius:1.2mm;overflow:hidden;background:#fff}
+.notes-h{background:var(--panel);padding:1.3mm 3mm;font-size:6.8pt;font-weight:700;
+  border-bottom:0.5pt solid var(--line);display:flex;gap:1.8mm;align-items:center}
+.notes-b{padding:1.4mm 3mm .8mm}
+.nl{border-bottom:0.4pt dotted #D6CAB3;height:4.4mm}
+.nl:last-child{border-bottom:0}
+
+/* totals */
+.totals{border:0.6pt solid var(--gold);border-radius:1.4mm;overflow:hidden;background:#fff}
+.totals .t-h{background:var(--dark);color:var(--gold2);padding:1.8mm 3mm;font-size:7pt;
+  font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.totals .t-h em{font-family:'Cormorant',serif;font-style:normal;font-size:6pt;letter-spacing:1.6px;
+  text-transform:uppercase;color:#9A8656}
+.tgrid{display:grid;grid-template-columns:1fr 1fr}
+.tc{display:flex;justify-content:space-between;align-items:baseline;gap:1.5mm;
+  padding:.85mm 2.4mm;border-bottom:0.4pt solid var(--line2);
+  border-left:0.4pt solid var(--line2);min-height:4.1mm}
+.tc:nth-child(even){border-left:0}
+.tc .k{font-size:6.2pt;color:var(--ink2);white-space:nowrap}
+.tc .v{font-size:6.8pt;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.tc.vat .k{font-size:5.7pt}
+.tc.minus .v{color:#8A2E2E}
+.tc.sub{background:var(--panel)}
+.tc.sub .k{color:var(--ink);font-weight:700}
+.grand{background:linear-gradient(135deg,#221C14,#332A1D);color:#fff;padding:2.2mm 3mm;
+  display:flex;justify-content:space-between;align-items:center;min-height:9.5mm}
+.grand .k{font-size:7.4pt;color:var(--gold2);font-weight:700}
+.grand .v{font-size:12.5pt;font-weight:800;letter-spacing:-.2px}
+.grand .v i{font-style:normal;font-size:6.6pt;font-weight:500;color:#CFC3A6;margin-right:1mm}
+
+/* terms */
+.terms{margin-top:2.4mm;border:0.5pt solid var(--line);border-radius:1.2mm;overflow:hidden;background:#FEFCF8}
+.terms-h{background:var(--panel);border-bottom:0.5pt solid var(--line);padding:1.4mm 3mm;
+  display:flex;align-items:center;gap:1.8mm;font-size:6.9pt;font-weight:700}
+.terms-h em{font-family:'Cormorant',serif;font-style:normal;font-size:6pt;color:var(--gold);
+  letter-spacing:1.5px;text-transform:uppercase;margin-inline-start:auto}
+.terms-b{padding:1.6mm 3mm 1.2mm;columns:4;column-gap:4mm;column-rule:0.4pt solid var(--line2)}
+.terms-b p{font-size:4.85pt;color:var(--ink2);line-height:1.4;margin-bottom:.75mm;
+  break-inside:avoid;text-align:justify}
+.terms-b p b{color:var(--ink);font-weight:700}
+.terms-b p s{color:var(--gold);font-weight:700;text-decoration:none;margin-left:.6mm}
+
+/* blank-form guide lines */
+body.blank .metabar .v,body.blank .rates .v,body.blank .words .v,
+body.blank .tc .v,body.blank .pc .v,body.blank tfoot td span{
+  display:inline-block;min-width:13mm;border-bottom:0.4pt dotted #C4B79E}
+body.blank .words .v{min-width:100%}
+body.blank .metabar .v,body.blank .rates .v{min-width:90%}
+body.blank .grand .v{display:inline-block;min-width:34mm;border-bottom:0.4pt dotted #8C7A55}
+/* signatures */
+.signs{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:2.2mm}
+.sign{border:0.5pt dashed var(--line);border-radius:1.2mm;height:11.5mm;padding:1.4mm 2.6mm;
+  display:flex;flex-direction:column;justify-content:space-between;background:#FEFCF8}
+.sign .k{font-size:6.4pt;font-weight:700;color:var(--ink2)}
+.sign .d{font-size:5.5pt;color:#B0A490;line-height:1.5}
+footer{position:absolute;left:11mm;right:11mm;bottom:10.5mm;display:flex;align-items:baseline;
+  gap:5mm;border-top:0.5pt solid var(--line);padding-top:2.2mm;font-size:5.9pt;color:var(--ink3)}
+footer .f-copies{flex:0 0 auto;letter-spacing:.1px;white-space:nowrap}
+footer .f-copies i{font-style:normal;color:var(--gold);margin:0 1.6mm}
+footer .f-note{flex:1;min-width:0;text-align:center;color:#A2977F;line-height:1.5;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+footer em{flex:0 0 auto;font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;
+  color:var(--gold);font-size:6.4pt;text-transform:uppercase}
+{{EXTRACSS}}
+</style>
+</head>
+<body class="{{BODYCLASS}}">
+{{TOOLBAR}}
+<div class="page">
+  <div class="frame"></div>
+  <div class="corner c-tr"></div><div class="corner c-tl"></div>
+  <div class="corner c-br"></div><div class="corner c-bl"></div>
+  <div class="watermark"></div>
+
+  <div class="inner">
+    <header>
+      <div class="brand">
+        <div class="medallion"><span class="dia f"></span></div>
+        <div class="brand-lines">
+          <div class="brand-hint">محل درج نام، نشان و مشخصات واحد صنفی</div>
+          <div class="dot-line w2"><b>نام فروشگاه :</b>{{SHOPNAME}}</div>
+          <div class="dot-line w1"><b>نشانی :</b>{{SHOPADDR}}</div>
+        </div>
+      </div>
+      <div class="titlebox">
+        <div class="eyebrow">Gold &amp; Jewelry Invoice</div>
+        <div class="title">فاکتور فروش طلا و جواهر <small>/ رسمی</small></div>
+        <div class="rule"></div>
+      </div>
+    </header>
+
+    <div class="metabar">
+      <div><div class="k">شماره فاکتور</div><div class="v">{{INVNO}}</div></div>
+      <div><div class="k">تاریخ صدور</div><div class="v">{{IDATE}}</div></div>
+      <div><div class="k">ساعت صدور</div><div class="v">{{ITIME}}</div></div>
+      <div><div class="k">شماره منحصربه‌فرد مالیاتی</div><div class="v">{{TAXID}}</div></div>
+    </div>
+
+    <div class="parties">
+      <div class="card">
+        <div class="card-h"><span class="dia"></span><span>مشخصات فروشنده</span><em>Seller</em></div>
+        <div class="f"><div class="lbl">نام واحد صنفی</div><div class="val">{{S_NAME}}</div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">شماره پروانه کسب</div><div class="val">{{S_LIC}}</div></div>
+          <div class="f"><div class="lbl">شناسه ملی</div><div class="val">{{S_NID}}</div></div>
+        </div>
+        <div class="f"><div class="lbl">نشانی</div><div class="val">{{S_ADDR}}</div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">تلفن</div><div class="val">{{S_TEL}}</div></div>
+          <div class="f"><div class="lbl">کدپستی</div><div class="val">{{S_ZIP}}</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span class="dia"></span><span>مشخصات خریدار</span><em>Buyer</em></div>
+        <div class="f"><div class="lbl">نام و نام خانوادگی</div><div class="val">{{B_NAME}}</div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">کد ملی</div><div class="val">{{B_NID}}</div></div>
+          <div class="f"><div class="lbl">تلفن همراه</div><div class="val">{{B_TEL}}</div></div>
+        </div>
+        <div class="f"><div class="lbl">نشانی</div><div class="val">{{B_ADDR}}</div></div>
+        <div class="f2">
+          <div class="f"><div class="lbl">کدپستی</div><div class="val">{{B_ZIP}}</div></div>
+          <div class="f"><div class="lbl">کد اقتصادی</div><div class="val">{{B_ECON}}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rates">
+      <div class="head"><span class="dia f"></span> نرخ‌های مبنای محاسبه</div>
+      <div class="cell"><div class="k">هر گرم طلای {{BASEAYAR}} عیار</div><div class="v">{{RATE}} <i>{{U1}}</i></div></div>
+      <div class="cell"><div class="k">مظنه مثقال ۱۷ عیار</div><div class="v">{{MESGHAL}} <i>{{U2}}</i></div></div>
+      <div class="cell"><div class="k">انس جهانی طلا</div><div class="v">{{OUNCE}} <i>{{U3}}</i></div></div>
+      <div class="cell"><div class="k">اعتبار نرخ</div><div class="v">{{RVALID}}</div></div>
+    </div>
+
+    <table>
+      <colgroup>
+        <col style="width:6mm"><col><col style="width:11mm"><col style="width:6.5mm">
+        <col style="width:12mm"><col style="width:19.5mm"><col style="width:21mm">
+        <col style="width:18.5mm"><col style="width:16.5mm"><col style="width:20.5mm">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ردیف<em>No</em></th>
+          <th>شرح کالا و مشخصات فنی<em>Description</em></th>
+          <th>عیار<em>Karat</em></th>
+          <th>تعداد<em>Qty</em></th>
+          <th>وزن (گرم)<em>Weight</em></th>
+          <th>ارزش طلا / سکه<em>Gold / coin</em></th>
+          <th>اجرت و کارمزد ساخت<em>Making &amp; service</em></th>
+          <th>سنگ و نگین<em>Stone</em></th>
+          <th>مالیات ارزش افزوده<em>VAT</em></th>
+          <th>مبلغ کل (تومان)<em>Line total</em></th>
+        </tr>
+      </thead>
+      <tbody>{{ROWS}}</tbody>
+      <tfoot>
+        <tr>
+          <td class="lbl" colspan="3">جمع کل — Total</td>
+          <td><span>{{TQTY}}</span></td><td><span>{{TW}}</span></td><td><span>{{TGOLD}}</span></td>
+          <td><span>{{TOJRAT}}</span></td><td><span>{{TSTONE}}</span></td>
+          <td><span>{{TVAT}}</span></td><td><span>{{SUBTOTAL}}</span></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="bottom">
+      <div>
+        <div class="words">
+          <div class="k">مبلغ قابل پرداخت به حروف :</div>
+          <div class="v">{{WORDS}}</div>
+        </div>
+        <div class="sub2">
+          <div class="pay">
+            <div class="pay-h"><span class="dia"></span> اطلاعات پرداخت</div>
+            <div class="pay-b">
+              <div class="pc"><span class="k">نقد / کارتخوان</span><span class="v">{{POS}}</span></div>
+              <div class="pc"><span class="k">انتقال / کارت به کارت</span><span class="v">{{TRANSFER}}</span></div>
+              <div class="pc"><span class="k">مانده حساب</span><span class="v">{{REMAIN}}</span></div>
+            </div>
+          </div>
+          <div class="notes">
+            <div class="notes-h"><span class="dia"></span> توضیحات و تعهدات تکمیلی</div>
+            <div class="notes-b">
+{{NOTES}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="totals">
+        <div class="t-h"><span>خلاصه صورتحساب</span><em>Summary</em></div>
+        <div class="tgrid">
+          <div class="tc"><span class="k">وزن کل (گرم)</span><span class="v">{{TW}}</span></div>
+          <div class="tc"><span class="k">ارزش طلای خام</span><span class="v">{{TGOLD}}</span></div>
+          <div class="tc"><span class="k">اجرت و کارمزد ساخت</span><span class="v">{{TOJRAT}}</span></div>
+          <div class="tc"><span class="k">سنگ و نگین</span><span class="v">{{TSTONE}}</span></div>
+          <div class="tc vat"><span class="k">مالیات ارزش افزوده</span><span class="v">{{TVAT}}</span></div>
+          <div class="tc minus"><span class="k">تخفیف</span><span class="v">{{DISCOUNT}}</span></div>
+          <div class="tc"><span class="k">گرد کردن</span><span class="v">{{ROUND}}</span></div>
+          <div class="tc sub"><span class="k">جمع صورتحساب</span><span class="v">{{SUBTOTAL}}</span></div>
+        </div>
+        <div class="grand"><span class="k">مبلغ قابل پرداخت</span>
+          <span class="v">{{PAYABLE}}<i>تومان</i></span></div>
+      </div>
+    </div>
+
+    <div class="terms">
+      <div class="terms-h"><span class="dia f"></span><span>شرایط و ضوابط فروش — مورد قبول و امضای خریدار</span><em>Terms of Sale</em></div>
+      <div class="terms-b">
+        <p><b>۱. اسقاط خیارات:</b> کلیه خیارات از جمله خیار غبن ولو غبن فاحش، عیب، رؤیت و تخلف از وصف، تدلیس، مجلس، تأخیر ثمن و شرط، با آگاهی کامل طرفین از ایشان ساقط گردید. <s>(ماده ۴۴۸ ق.م)</s></p>
+        <p><b>۲. توزین، عیار و تحویل:</b> وزن، عیار، تعداد و سلامت کامل اقلام در حضور خریدار و با ترازوی کالیبره فروشگاه رؤیت و تأیید و کالا سالم تحویل گردید؛ هرگونه ادعا در این خصوص پس از خروج کالا از فروشگاه مسموع نبوده و خریدار حق طرح آن را از خود ساقط نمود.</p>
+        <p><b>۳. عدم پذیرش مرجوعی:</b> کالای سالم قابل استرداد نیست؛ پذیرش مرجوعی صرفاً حق فروشنده و منوط به موافقت کتبی اوست و در آن صورت اجرت و کارمزد ساخت، مالیات، بهای سنگ و کارمزدهای بانکی کسر می‌گردد.</p>
+        <p><b>۴. مبنای بازخرید:</b> صرفاً وزن حاصل از توزین مجدد و «نرخ خرید» اعلامی فروشگاه در روز مراجعه؛ اجرت و کارمزد ساخت، مالیات، بهای سنگ، بند، قفل و ملحقات محاسبه نشده و افت ناشی از ساییدگی، لحیم و شکستگی کسر می‌شود.</p>
+        <p><b>۵. اقلام غیرقابل استرداد:</b> اقلام سفارشی، حکاکی‌شده، سایزشده، تعمیرشده، نگین‌نشان به سفارش خریدار و اقلام با پلمب یا برچسب مخدوش، در هیچ حالت مرجوع، تعویض یا بازخرید نمی‌شود.</p>
+        <p><b>۶. بیعانه و رزرو:</b> در صورت انصراف خریدار یا عدم مراجعه در موعد مقرر، بیعانه به‌عنوان وجه التزام قطعی و غیرقابل استرداد به نفع فروشنده ضبط و حق هرگونه اعتراض و مطالبه از خریدار ساقط است. <s>(ماده ۲۳۰ ق.م)</s></p>
+        <p><b>۷. حفظ مالکیت تا تسویه:</b> تا وصول کامل و قطعی ثمن (نقد، کارتخوان، انتقال بانکی یا چک)، مالکیت کالا با فروشنده و کالا نزد خریدار امانت است؛ عدم تسویه در موعد یا برگشت چک، حق فسخ یک‌جانبه، استرداد فوری کالا و مطالبه خسارت را برای فروشنده ایجاد می‌کند.</p>
+        <p><b>۸. وجه التزام تأخیر:</b> بابت هر روز تأخیر در تسویه، روزانه معادل …٪ مانده بدهی به‌عنوان وجه التزام مورد تراضی طرفین و بدون نیاز به اثبات ورود خسارت، بر ذمه خریدار مستقر می‌شود.</p>
+        <p><b>۹. اعتبار نرخ:</b> نرخ‌های این فاکتور تا پایان ساعت کاری روز صدور و منوط به تسویه کامل معتبر است؛ پس از آن محاسبه بر مبنای نرخ روز تسویه انجام شده و خریدار حق اعتراض ندارد.</p>
+        <p><b>۱۰. ضمانت محدود:</b> ضمانت صرفاً شامل عیوب پنهان ساخت به مدت … ماه است؛ ساییدگی، ضربه، تغییر شکل، پارگی بند، افتادن یا شکستن نگین، رنگ‌پریدگی آبکاری، تماس با مواد شیمیایی و استفاده نادرست مشمول نیست و تعمیر یا دخالت اشخاص ثالث، ضمانت را کاملاً ساقط می‌کند.</p>
+        <p><b>۱۱. اعتبار مستندات:</b> اصل این فاکتور، دفاتر، سوابق و توزین فروشگاه تنها مستند مورد قبول طرفین است؛ طرح هر ادعا منوط به ارائه اصل فاکتور با برچسب و پلمب دست‌نخورده کالاست، المثنی صادر نمی‌شود و نگهداری فاکتور بر عهده خریدار است.</p>
+        <p><b>۱۲. مالیات و هزینه‌ها:</b> مالیات بر ارزش افزوده (بر مبنای اجرت و کارمزد ساخت)، کارمزد بانکی، هزینه انتقال، بسته‌بندی و بیمه ارسال بر عهده خریدار است.</p>
+        <p><b>۱۳. حل اختلاف:</b> ابتدا اتحادیه صنف طلا و جواهر محل استقرار فروشگاه و سپس مراجع قضایی همان حوزه؛ صلاحیت محلی مذکور مورد توافق صریح طرفین است.</p>
+        <p><b>۱۴. اعلام پذیرش:</b> امضای خریدار ذیل این فاکتور به‌منزله مطالعه، درک کامل و پذیرش بی‌قید و شرط تمامی بندهای فوق و تأیید صحت مندرجات آن است.</p>
+      </div>
+    </div>
+
+    <div class="signs">
+      <div class="sign">
+        <div class="k">مهر و امضای فروشنده</div>
+        <div class="d">Seller stamp &amp; signature</div>
+      </div>
+      <div class="sign">
+        <div class="k">امضای خریدار</div>
+        <div class="d">مشخصات، وزن، عیار و مبلغ را تأیید، کالا را سالم تحویل گرفتم و کلیه بندهای فوق را پذیرفتم.</div>
+      </div>
+      <div class="sign">
+        <div class="k">تاریخ و ساعت تحویل کالا</div>
+        <div class="d">Delivery date &amp; time</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="f-copies">نسخه اول: خریدار<i>·</i>نسخه دوم: فروشنده</span>
+    <span class="f-note">{{FOOTNOTE}}</span>
+    <em>Page 1 / 1</em>
+  </footer>
+</div>
+{{EXTRAJS}}
+</body>
+</html>
