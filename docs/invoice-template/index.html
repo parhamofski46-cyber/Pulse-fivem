@@ -199,7 +199,7 @@ body.blank .grand .v{display:inline-block;min-width:34mm;border-bottom:0.4pt dot
   display:flex;flex-direction:column;justify-content:space-between;background:#FEFCF8}
 .sign .k{font-size:6.4pt;font-weight:700;color:var(--ink2)}
 .sign .d{font-size:5.5pt;color:#B0A490;line-height:1.5}
-footer{position:absolute;left:11mm;right:11mm;bottom:9mm;display:flex;align-items:baseline;
+footer{position:absolute;left:11mm;right:11mm;bottom:10.5mm;display:flex;align-items:baseline;
   gap:5mm;border-top:0.5pt solid var(--line);padding-top:2.2mm;font-size:5.9pt;color:var(--ink3)}
 footer .f-copies{flex:0 0 auto;letter-spacing:.1px;white-space:nowrap}
 footer .f-copies i{font-style:normal;color:var(--gold);margin:0 1.6mm}
@@ -264,7 +264,10 @@ td .i{font-size:7pt;font-weight:600}
 /* On screen the per-row percent chips add height that print does not have;
    let the sheet grow instead of clipping the signatures. Print stays exact A4. */
 @media screen{
-  .page{height:auto;min-height:297mm;overflow:visible;padding-bottom:6mm}
+  /* کادر طلایی ۶.۵ میلی‌متر از لبه برگه فاصله دارد و یک خط داخلی هم در ۸.۱ میلی‌متری
+     می‌نشیند؛ پس پای صفحه باید دست‌کم ۱۲ میلی‌متر بالاتر از لبه تمام شود تا خط
+     از روی متن رد نشود. */
+  .page{height:auto;min-height:297mm;overflow:visible;padding-bottom:13mm}
   .page>footer{position:static;left:auto;right:auto;bottom:auto;margin:4mm 2.5mm 0}
 }
 .o{display:inline-block}
