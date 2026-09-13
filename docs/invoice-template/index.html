@@ -1445,12 +1445,18 @@ footer .i.fn::placeholder{color:#CFC4AE}
       return !a.ok && /Failed to fetch|NetworkError|Load failed|مسدود/.test(a.err || "");
     });
   }
+  function localFile(){
+    return location.protocol === "file:" || location.protocol === "content:";
+  }
   function failureHint(){
-    if (allBlocked())
-      return "مرورگر اجازه هیچ اتصال بیرونی نداد — این صفحه را از لینک باز کرده‌اید؟ " +
-             "نسخه میزبانی‌شده روی GitHub Pages یا فایل دانلودی این محدودیت را ندارد. " +
-             "تا آن موقع نرخ‌ها را دستی وارد کنید.";
-    return "هیچ منبعی جواب نداد — گزارش تلاش‌ها را ببینید؛ علت هر کدام آنجا نوشته شده";
+    if (!allBlocked())
+      return "هیچ منبعی جواب نداد — گزارش تلاش‌ها را ببینید؛ علت هر کدام آنجا نوشته شده";
+    if (localFile())
+      return "مرورگر به صفحه‌ای که از روی فایل باز شده اجازه اتصال نمی‌دهد — " +
+             "این محدودیت روی گوشی سخت‌گیرانه‌تر است. صفحه را از یک آدرس اینترنتی باز کنید " +
+             "یا نرخ‌ها را دستی وارد کنید.";
+    return "مرورگر اجازه هیچ اتصال بیرونی نداد — اگر صفحه را از لینک باز کرده‌اید، " +
+           "نسخه میزبانی‌شده این محدودیت را ندارد. تا آن موقع نرخ‌ها را دستی وارد کنید.";
   }
   var showDiag = false;
   function renderAttempts(){
