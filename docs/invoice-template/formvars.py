@@ -84,6 +84,7 @@ def build(fa):
         "REMAIN": out("rem"),
         "NOTES": "".join('<div class="nl">%s</div>' % inp("n%d" % i, "nli")
                          for i in range(1, 4)),
+        "FOOTNOTE": inp("fnote", "fn", 'placeholder="یادداشت پای فاکتور — اختیاری"'),
         "BASEAYAR": '<span class="o o-baseayar">۱۸</span>',
         "TOOLBAR": TOOLBAR,
         "EXTRACSS": "\n" + _read("form.css"),

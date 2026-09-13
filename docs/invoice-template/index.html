@@ -199,11 +199,14 @@ body.blank .grand .v{display:inline-block;min-width:34mm;border-bottom:0.4pt dot
   display:flex;flex-direction:column;justify-content:space-between;background:#FEFCF8}
 .sign .k{font-size:6.4pt;font-weight:700;color:var(--ink2)}
 .sign .d{font-size:5.5pt;color:#B0A490;line-height:1.5}
-footer{position:absolute;left:11mm;right:11mm;bottom:8.4mm;display:flex;justify-content:space-between;
-  align-items:center;border-top:0.5pt solid var(--line);padding-top:1.8mm;font-size:5.7pt;color:var(--ink3)}
-footer .fa-note{max-width:130mm;line-height:1.5}
-footer em{font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;color:var(--gold);
-  font-size:6.4pt;text-transform:uppercase}
+footer{position:absolute;left:11mm;right:11mm;bottom:9mm;display:flex;align-items:baseline;
+  gap:5mm;border-top:0.5pt solid var(--line);padding-top:2.2mm;font-size:5.9pt;color:var(--ink3)}
+footer .f-copies{flex:0 0 auto;letter-spacing:.1px;white-space:nowrap}
+footer .f-copies i{font-style:normal;color:var(--gold);margin:0 1.6mm}
+footer .f-note{flex:1;min-width:0;text-align:center;color:#A2977F;line-height:1.5;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+footer em{flex:0 0 auto;font-family:'Cormorant',serif;font-style:normal;letter-spacing:2px;
+  color:var(--gold);font-size:6.4pt;text-transform:uppercase}
 
 /* ---------- fill-in-the-browser variant ---------- */
 @media screen{
@@ -366,6 +369,14 @@ tr.coin .chip{visibility:hidden}
   .toolbar .note,.livebar .lb-note,.coinbar .cb-note{display:none}
   .toolbar,.livebar,.coinbar{padding-inline:3mm;gap:2.4mm}
   .livecfg{padding-inline:3mm}
+}
+
+footer .i.fn{font-size:5.9pt;text-align:center;color:#A2977F;border-bottom:0}
+footer .i.fn::placeholder{color:#CFC4AE}
+/* متن راهنمای فیلدها هرگز چاپ نشود */
+@media print{
+  .i::placeholder{color:transparent!important;opacity:0!important}
+  .i::-webkit-input-placeholder{color:transparent!important}
 }
 
 </style>
@@ -690,7 +701,8 @@ tr.coin .chip{visibility:hidden}
   </div>
 
   <footer>
-    <div class="fa-note">این فاکتور به‌صورت الکترونیکی صادر شده و در سامانه مؤدیان مالیاتی قابل استعلام است. نسخه اول: خریدار — نسخه دوم: فروشنده.</div>
+    <span class="f-copies">نسخه اول: خریدار<i>·</i>نسخه دوم: فروشنده</span>
+    <span class="f-note"><input id="fnote" class="i fn" autocomplete="off" spellcheck="false" placeholder="یادداشت پای فاکتور — اختیاری"></span>
     <em>Page 1 / 1</em>
   </footer>
 </div>

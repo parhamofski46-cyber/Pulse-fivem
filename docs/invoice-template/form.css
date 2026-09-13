@@ -160,3 +160,11 @@ tr.coin .chip{visibility:hidden}
   .toolbar,.livebar,.coinbar{padding-inline:3mm;gap:2.4mm}
   .livecfg{padding-inline:3mm}
 }
+
+footer .i.fn{font-size:5.9pt;text-align:center;color:#A2977F;border-bottom:0}
+footer .i.fn::placeholder{color:#CFC4AE}
+/* متن راهنمای فیلدها هرگز چاپ نشود */
+@media print{
+  .i::placeholder{color:transparent!important;opacity:0!important}
+  .i::-webkit-input-placeholder{color:transparent!important}
+}
