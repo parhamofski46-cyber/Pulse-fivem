@@ -86,8 +86,10 @@ td .i{font-size:7pt;font-weight:600}
 .cp-body .cp-t tr{background:none}
 .cp-body .cp-t td{padding:.9mm 0;font-size:7.6pt;vertical-align:baseline;border:0;background:none;line-height:1.5}
 .cp-l{color:#9D917A;white-space:nowrap;width:26mm}
-.cp-w{color:#786E5B;font-size:7pt;direction:ltr;text-align:right;padding:0 2mm!important}
-.cp-v{color:#F0E7D2;font-weight:700;text-align:left;white-space:nowrap;direction:ltr}
+/* این ستون متن فارسی و عدد را با هم دارد؛ جهت باید راست‌به‌چپ بماند،
+   وگرنه کلمه «گرم» و علامت × جابه‌جا می‌شوند. */
+.cp-w{color:#786E5B;font-size:7pt;direction:rtl;text-align:right;padding:0 2mm!important}
+.cp-v{color:#F0E7D2;font-weight:700;text-align:left;white-space:nowrap;direction:rtl}
 .cp-t tr.hot .cp-l,.cp-t tr.hot .cp-v{color:#E5C267}
 .cp-t tr.warn .cp-v{color:#D79A72}
 .cp-t tr.tot{border-top:0.5pt solid #332C22}

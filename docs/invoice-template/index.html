@@ -296,8 +296,10 @@ td .i{font-size:7pt;font-weight:600}
 .cp-body .cp-t tr{background:none}
 .cp-body .cp-t td{padding:.9mm 0;font-size:7.6pt;vertical-align:baseline;border:0;background:none;line-height:1.5}
 .cp-l{color:#9D917A;white-space:nowrap;width:26mm}
-.cp-w{color:#786E5B;font-size:7pt;direction:ltr;text-align:right;padding:0 2mm!important}
-.cp-v{color:#F0E7D2;font-weight:700;text-align:left;white-space:nowrap;direction:ltr}
+/* این ستون متن فارسی و عدد را با هم دارد؛ جهت باید راست‌به‌چپ بماند،
+   وگرنه کلمه «گرم» و علامت × جابه‌جا می‌شوند. */
+.cp-w{color:#786E5B;font-size:7pt;direction:rtl;text-align:right;padding:0 2mm!important}
+.cp-v{color:#F0E7D2;font-weight:700;text-align:left;white-space:nowrap;direction:rtl}
 .cp-t tr.hot .cp-l,.cp-t tr.hot .cp-v{color:#E5C267}
 .cp-t tr.warn .cp-v{color:#D79A72}
 .cp-t tr.tot{border-top:0.5pt solid #332C22}
@@ -1020,8 +1022,8 @@ footer .i.fn::placeholder{color:#CFC4AE}
       (T.stone > ZERO ? line("جمع سنگ و نگین", "", money0(T.stone)) : "") +
       line("مالیات — سهم دولت", "این مبلغ درآمد شما نیست", money0(T.vat), "warn") +
       line("جمع فاکتور", "", money0(T.tot)) +
-      (disc > ZERO ? line("تخفیف", "", "− " + money0(disc)) : "") +
-      (rnd !== ZERO ? line("گرد کردن", "", (rnd < ZERO ? "− " : "+ ") + money(rnd < ZERO ? -rnd : rnd)) : "") +
+      (disc > ZERO ? line("تخفیف", "", signed(true, money0(disc)), "minus") : "") +
+      (rnd !== ZERO ? line("گرد کردن", "", signed(rnd < ZERO, money(rnd < ZERO ? -rnd : rnd))) : "") +
       line("مبلغ قابل پرداخت", "", money0(pay), "tot") +
       line("سود نسبت به ارزش طلا", "", ratio(T.sood, T.gold) + "٪") +
       line("سود نسبت به کل فاکتور", "", ratio(T.sood, T.tot) + "٪") +
@@ -1031,15 +1033,18 @@ footer .i.fn::placeholder{color:#CFC4AE}
       h += '<div class="cp-sh">سود خالص با احتساب اجرت خرید</div><table class="cp-t">' +
         line("اجرت پرداختی شما " + pct(buyBp) + "٪", money0(T.goldJewel) + " × " + pct(buyBp) + "٪", money0(paidOjrat)) +
         line("مابه‌التفاوت اجرت", money0(T.ojrat) + " − " + money0(paidOjrat),
-             (diff < ZERO ? "− " : "") + money0(diff < ZERO ? -diff : diff)) +
+             diff < ZERO ? signed(true, money0(-diff)) : money0(diff)) +
         line("سود خالص شما", money0(T.sood) + (diff < ZERO ? " − " : " + ") + money0(diff < ZERO ? -diff : diff),
-             (netProfit < ZERO ? "− " : "") + money0(netProfit < ZERO ? -netProfit : netProfit), "tot") +
+             netProfit < ZERO ? signed(true, money0(-netProfit)) : money0(netProfit), "tot") +
         '</table>';
     } else {
       h += '<p class="cp-hint">اگر درصد اجرتی که خودتان موقع خرید کالا پرداخت کرده‌اید را در نوار بالا وارد کنید، سود خالص واقعی هم اینجا حساب می‌شود.</p>';
     }
     h += '</div>';
     box.innerHTML = h;
+  }
+  function signed(neg, v){        // «−۱,۰۰۰,۰۰۰» یکپارچه، نه علامت جدا افتاده
+    return '<bdi dir="ltr">' + (neg ? "\u2212" : "+") + v + "</bdi>";
   }
   function line(label, work, result, cls){
     return '<tr class="' + (cls || "") + '"><td class="cp-l">' + label + '</td>' +
